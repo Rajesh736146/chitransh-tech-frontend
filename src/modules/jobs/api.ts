@@ -1,0 +1,30 @@
+import api from "@/lib/axios";
+import type { Job, JobListResponse, Company, JobCreatePayload, JobSearchParams } from "./types";
+
+export const jobsApi = {
+  // ── public ──────────────────────────────────────────────────────────────
+  listJobs: (params: JobSearchParams = {}) =>
+    api.get<JobListResponse>("/jobs/", { params }).then((r) => r.data),
+
+  getJob: (id: string) =>
+    api.get<Job>(`/jobs/${id}`).then((r) => r.data),
+
+  listCompanies: () =>
+    api.get<Company[]>("/jobs/companies").then((r) => r.data),
+
+  // ── employer ─────────────────────────────────────────────────────────────
+  createJob: (payload: JobCreatePayload) =>
+    api.post<Job>("/jobs/", payload).then((r) => r.data),
+
+  getMyJobs: (page = 1, page_size = 20) =>
+    api.get<JobListResponse>("/jobs/my", { params: { page, page_size } }).then((r) => r.data),
+
+  updateJob: (id: string, payload: Partial<JobCreatePayload> & { status?: string }) =>
+    api.patch<Job>(`/jobs/${id}`, payload).then((r) => r.data),
+
+  deleteJob: (id: string) =>
+    api.delete(`/jobs/${id}`).then((r) => r.data),
+
+  createCompany: (payload: { company_name: string; industry?: string; headquarters?: string }) =>
+    api.post<Company>("/jobs/companies", payload).then((r) => r.data),
+};
