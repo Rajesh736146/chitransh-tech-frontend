@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import {
   User, GraduationCap, Code2, FolderGit2, Briefcase, Award,
   Plus, Trash2, Sparkles, Loader2, Copy, ChevronRight,
-  CheckCircle2, ArrowLeft, ExternalLink,
+  CheckCircle2, ArrowLeft, ExternalLink, FileDown, FileText,
 } from "lucide-react";
 
 /* ─── Types ─────────────────────────────────────────────────────────────── */
@@ -100,6 +100,158 @@ function AddButton({ onClick, label }: { onClick: () => void; label: string }) {
 }
 
 /* ─── Result view ────────────────────────────────────────────────────────── */
+function buildResumeHTML(r: BuildResumeResponse): string {
+  const ai = r.ai_enhanced;
+  const pd = r.personal_details;
+
+  const esc = (s: string) => s?.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") ?? "";
+
+  const contactParts = [pd.email, pd.phone, pd.location].filter(Boolean).map(esc).join(" &nbsp;·&nbsp; ");
+  const linkParts = [pd.linkedin, pd.github, pd.portfolio].filter(Boolean).map(esc).join(" &nbsp;·&nbsp; ");
+
+  const summary = typeof ai.summary === "string" ? ai.summary : (ai.summary as any)?.summary ?? "";
+
+  const eduHTML = (r.education ?? []).map((e: any) => `
+    <div class="entry">
+      <div class="entry-header">
+        <span class="entry-title">${esc(e.degree)}${e.field_of_study ? `, ${esc(e.field_of_study)}` : ""}</span>
+        ${e.start_year ? `<span class="entry-date">${e.start_year}–${e.end_year ?? "Present"}</span>` : ""}
+      </div>
+      <div class="entry-sub">${esc(e.institution)}${e.grade ? ` &nbsp;·&nbsp; ${esc(e.grade)}` : ""}</div>
+    </div>`).join("");
+
+  const skillsHTML = ((ai.skills as any)?.skills ?? []).map((s: any) =>
+    `<div class="skill-row"><span class="skill-cat">${esc(s.category)}:</span> <span class="skill-items">${s.items?.map(esc).join(", ")}</span></div>`
+  ).join("");
+
+  const projectsHTML = ((ai.projects ?? []) as any[]).map((p: any) => `
+    <div class="entry">
+      <div class="entry-header">
+        <span class="entry-title">${esc(p.title)}${p.role ? ` <span class="entry-sub-inline">· ${esc(p.role)}</span>` : ""}</span>
+        ${p.url ? `<a href="${esc(p.url)}" class="entry-link">${esc(p.url)}</a>` : ""}
+      </div>
+      ${(p.bullets ?? []).map((b: string) => `<div class="bullet">• ${esc(b)}</div>`).join("")}
+      ${p.technologies?.length ? `<div class="tags">${p.technologies.map((t: string) => `<span class="tag">${esc(t)}</span>`).join("")}</div>` : ""}
+    </div>`).join("");
+
+  const expHTML = ((ai.work_experience ?? []) as any[]).map((e: any) => `
+    <div class="entry">
+      <div class="entry-header">
+        <span class="entry-title">${esc(e.role)}</span>
+        <span class="entry-date">${e.start_date ?? ""}${e.end_date ? `–${e.end_date}` : ""}${e.duration ? ` · ${esc(e.duration)}` : ""}</span>
+      </div>
+      <div class="entry-sub">${esc(e.company)}</div>
+      ${(e.bullets ?? []).map((b: string) => `<div class="bullet">• ${esc(b)}</div>`).join("")}
+    </div>`).join("");
+
+  const certHTML = ((r.certifications ?? []) as any[]).map((c: any) => `
+    <div class="entry">
+      <div class="entry-header">
+        <span class="entry-title">${esc(c.name)}</span>
+        ${c.year ? `<span class="entry-date">${c.year}</span>` : ""}
+      </div>
+      ${c.issuer ? `<div class="entry-sub">${esc(c.issuer)}</div>` : ""}
+    </div>`).join("");
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>${esc(pd.name)} — Resume</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+    font-size: 11pt;
+    color: #1a1a1a;
+    background: #fff;
+    padding: 40px 48px;
+    max-width: 800px;
+    margin: 0 auto;
+    line-height: 1.5;
+  }
+  /* Header */
+  .resume-header { border-bottom: 2px solid #111; padding-bottom: 14px; margin-bottom: 20px; }
+  .resume-name { font-size: 22pt; font-weight: 700; letter-spacing: -0.5px; color: #111; }
+  .resume-role { font-size: 11pt; font-weight: 500; color: #555; margin-top: 2px; }
+  .resume-contact { font-size: 9pt; color: #666; margin-top: 6px; }
+  .resume-links { font-size: 9pt; color: #2563eb; margin-top: 3px; }
+  /* Sections */
+  .section { margin-bottom: 18px; }
+  .section-title {
+    font-size: 8.5pt; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.12em; color: #888; border-bottom: 1px solid #e5e5e5;
+    padding-bottom: 4px; margin-bottom: 10px;
+  }
+  /* Entries */
+  .entry { margin-bottom: 12px; }
+  .entry-header { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+  .entry-title { font-size: 10.5pt; font-weight: 600; color: #111; }
+  .entry-sub-inline { font-weight: 400; color: #666; font-size: 9.5pt; }
+  .entry-date { font-size: 9pt; color: #888; white-space: nowrap; flex-shrink: 0; }
+  .entry-sub { font-size: 9.5pt; color: #555; margin-top: 1px; }
+  .entry-link { font-size: 8.5pt; color: #2563eb; text-decoration: none; }
+  /* Bullets */
+  .bullet { font-size: 10pt; color: #333; margin-top: 3px; padding-left: 4px; }
+  /* Skills */
+  .skill-row { font-size: 10pt; margin-bottom: 4px; }
+  .skill-cat { font-weight: 600; color: #111; }
+  .skill-items { color: #444; }
+  /* Tags */
+  .tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
+  .tag { font-size: 8pt; background: #f3f4f6; color: #555; padding: 2px 7px; border-radius: 4px; }
+  /* Print */
+  @media print {
+    body { padding: 20px 28px; }
+    @page { margin: 1.5cm; size: A4; }
+  }
+</style>
+</head>
+<body>
+  <div class="resume-header">
+    <div class="resume-name">${esc(pd.name)}</div>
+    <div class="resume-role">${esc(r.target_role)}</div>
+    ${contactParts ? `<div class="resume-contact">${contactParts}</div>` : ""}
+    ${linkParts ? `<div class="resume-links">${linkParts}</div>` : ""}
+  </div>
+
+  ${summary ? `<div class="section"><div class="section-title">Professional Summary</div><p style="font-size:10pt;color:#333;line-height:1.6">${esc(summary)}</p></div>` : ""}
+  ${eduHTML ? `<div class="section"><div class="section-title">Education</div>${eduHTML}</div>` : ""}
+  ${skillsHTML ? `<div class="section"><div class="section-title">Skills</div>${skillsHTML}</div>` : ""}
+  ${projectsHTML ? `<div class="section"><div class="section-title">Projects</div>${projectsHTML}</div>` : ""}
+  ${expHTML ? `<div class="section"><div class="section-title">Work Experience</div>${expHTML}</div>` : ""}
+  ${certHTML ? `<div class="section"><div class="section-title">Certifications</div>${certHTML}</div>` : ""}
+</body>
+</html>`;
+}
+
+function downloadDOCX(r: BuildResumeResponse) {
+  const html = buildResumeHTML(r);
+  const blob = new Blob(["\ufeff", html], { type: "application/msword" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${r.personal_details.name?.replace(/\s+/g, "_") || "Resume"}.doc`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast.success("Downloaded as Word document!");
+}
+
+function downloadPDF(r: BuildResumeResponse) {
+  const html = buildResumeHTML(r);
+  const win = window.open("", "_blank");
+  if (!win) { toast.error("Allow pop-ups to download PDF"); return; }
+  win.document.write(html);
+  win.document.close();
+  win.focus();
+  setTimeout(() => {
+    win.print();
+    win.close();
+  }, 600);
+  toast.success("Print dialog opened — save as PDF");
+}
 function ResultView({ r, onBack }: { r: BuildResumeResponse; onBack: () => void }) {
   const ai = r.ai_enhanced;
 
@@ -117,9 +269,26 @@ function ResultView({ r, onBack }: { r: BuildResumeResponse; onBack: () => void 
           <button onClick={onBack} className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors">
             <ArrowLeft size={15} /> Back to editor
           </button>
-          <button onClick={copy} className="flex items-center gap-1.5 text-sm bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors">
-            <Copy size={14} /> Copy all
-          </button>
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              onClick={copy}
+              className="flex items-center gap-1.5 text-sm border border-gray-200 text-gray-700 px-3.5 py-2 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              <Copy size={14} /> Copy text
+            </button>
+            <button
+              onClick={() => downloadDOCX(r)}
+              className="flex items-center gap-1.5 text-sm border border-gray-200 text-gray-700 px-3.5 py-2 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              <FileText size={14} /> Download DOCX
+            </button>
+            <button
+              onClick={() => downloadPDF(r)}
+              className="flex items-center gap-1.5 text-sm bg-gray-900 text-white px-3.5 py-2 rounded-lg hover:bg-gray-700 transition-colors"
+            >
+              <FileDown size={14} /> Download PDF
+            </button>
+          </div>
         </div>
 
         {/* Resume document */}
