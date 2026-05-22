@@ -8,8 +8,8 @@ node_modules/
 out/
 
 # production
-build/
-dist/
+/build/
+/dist/
 
 # env files — never commit these
 .env
