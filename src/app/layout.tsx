@@ -1,9 +1,19 @@
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
+import { Playfair_Display, DM_Sans } from "next/font/google";
 import { Toaster } from "sonner";
 import "./globals.css";
 
-const geist = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
+const playfair = Playfair_Display({
+  variable: "--font-serif",
+  subsets: ["latin"],
+  display: "swap",
+});
+
+const dmSans = DM_Sans({
+  variable: "--font-sans",
+  subsets: ["latin"],
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "JobPortal",
@@ -16,8 +26,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={geist.variable}>
-      <body className="min-h-screen bg-white text-gray-900 antialiased">
+    <html lang="en" className={`${playfair.variable} ${dmSans.variable}`}>
+      <body className="min-h-screen bg-stone-50 text-stone-900 antialiased" style={{ fontFamily: "var(--font-sans)" }}>
         {children}
         <Toaster position="top-right" richColors />
       </body>
