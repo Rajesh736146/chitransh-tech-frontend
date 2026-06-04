@@ -1,23 +1,23 @@
 import type { Metadata } from "next";
-import { Playfair_Display, DM_Sans } from "next/font/google";
+import { Inter, DM_Sans } from "next/font/google";
 import { Toaster } from "sonner";
 import "./globals.css";
 
-const playfair = Playfair_Display({
-  variable: "--font-serif",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const dmSans = DM_Sans({
+const inter = Inter({
   variable: "--font-sans",
   subsets: ["latin"],
   display: "swap",
 });
 
+const dmSans = DM_Sans({
+  variable: "--font-display",
+  subsets: ["latin"],
+  display: "swap",
+});
+
 export const metadata: Metadata = {
-  title: "JobPortal",
-  description: "Find your next opportunity",
+  title: "Chitransh Tech — Find Your Dream Career",
+  description: "India's leading professional network and job portal. Connect, grow, and get hired.",
 };
 
 export default function RootLayout({
@@ -26,10 +26,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${playfair.variable} ${dmSans.variable}`}>
-      <body className="min-h-screen bg-stone-50 text-stone-900 antialiased" style={{ fontFamily: "var(--font-sans)" }}>
+    <html lang="en" className={`${inter.variable} ${dmSans.variable}`}>
+      <body className="min-h-screen bg-[var(--color-surface)] text-[var(--color-text)] antialiased font-[var(--font-sans)]">
         {children}
-        <Toaster position="top-right" richColors />
+        <Toaster position="top-center" richColors closeButton />
       </body>
     </html>
   );

@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import { jobsApi } from "@/modules/jobs/api";
 import { useAuthStore } from "@/modules/auth/store";
@@ -301,19 +302,21 @@ function PostJobModal({ companies, onClose, onSuccess }: {
 }
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
-export default function JobsPage() {
+function JobsPageInner() {
   const { user } = useAuthStore();
   const isEmployer = user?.role_id === 2;
+  const searchParams = useSearchParams();
 
   const [jobs, setJobs] = useState<Job[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
 
-  const [search, setSearch] = useState("");
-  const [location, setLocation] = useState("");
-  const [employmentType, setEmploymentType] = useState("");
-  const [remoteType, setRemoteType] = useState("");
+  // Initialize search from URL query param (from category clicks)
+  const [search, setSearch] = useState(searchParams.get("search") || "");
+  const [location, setLocation] = useState(searchParams.get("location") || "");
+  const [employmentType, setEmploymentType] = useState(searchParams.get("employment_type") || "");
+  const [remoteType, setRemoteType] = useState(searchParams.get("remote_type") || "");
 
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const [showPostJob, setShowPostJob] = useState(false);
@@ -321,16 +324,16 @@ export default function JobsPage() {
 
   const PAGE_SIZE = 12;
 
-  const fetchJobs = useCallback(async (p = 1) => {
+  const fetchJobs = useCallback(async (p = 1, overrides?: { search?: string; location?: string; employmentType?: string; remoteType?: string }) => {
     setLoading(true);
     try {
       const res = await jobsApi.listJobs({
         page: p,
         page_size: PAGE_SIZE,
-        search: search || undefined,
-        location: location || undefined,
-        employment_type: employmentType || undefined,
-        remote_type: remoteType || undefined,
+        search: (overrides?.search ?? search) || undefined,
+        location: (overrides?.location ?? location) || undefined,
+        employment_type: (overrides?.employmentType ?? employmentType) || undefined,
+        remote_type: (overrides?.remoteType ?? remoteType) || undefined,
       });
       setJobs(res.items);
       setTotal(res.total);
@@ -342,8 +345,16 @@ export default function JobsPage() {
     }
   }, [search, location, employmentType, remoteType]);
 
-  // initial load
-  useEffect(() => { fetchJobs(1); }, []);
+  // On mount: run with whatever came from URL params
+  useEffect(() => {
+    fetchJobs(1, {
+      search: searchParams.get("search") || "",
+      location: searchParams.get("location") || "",
+      employmentType: searchParams.get("employment_type") || "",
+      remoteType: searchParams.get("remote_type") || "",
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // load companies for employer
   useEffect(() => {
@@ -359,7 +370,7 @@ export default function JobsPage() {
 
   const clearFilters = () => {
     setSearch(""); setLocation(""); setEmploymentType(""); setRemoteType("");
-    setTimeout(() => fetchJobs(1), 0);
+    fetchJobs(1, { search: "", location: "", employmentType: "", remoteType: "" });
   };
 
   const totalPages = Math.ceil(total / PAGE_SIZE);
@@ -420,6 +431,36 @@ export default function JobsPage() {
               </button>
             )}
           </form>
+
+          {/* Active filter pills */}
+          {(search || location || employmentType || remoteType) && (
+            <div className="flex flex-wrap gap-2 mt-3">
+              {search && (
+                <span className="flex items-center gap-1 text-xs bg-blue-50 text-blue-700 border border-blue-200 px-3 py-1 rounded-full">
+                  🔍 {search}
+                  <button onClick={() => { setSearch(""); fetchJobs(1, { search: "" }); }} className="ml-1 hover:text-blue-900">✕</button>
+                </span>
+              )}
+              {location && (
+                <span className="flex items-center gap-1 text-xs bg-green-50 text-green-700 border border-green-200 px-3 py-1 rounded-full">
+                  📍 {location}
+                  <button onClick={() => { setLocation(""); fetchJobs(1, { location: "" }); }} className="ml-1 hover:text-green-900">✕</button>
+                </span>
+              )}
+              {employmentType && (
+                <span className="flex items-center gap-1 text-xs bg-purple-50 text-purple-700 border border-purple-200 px-3 py-1 rounded-full">
+                  🕐 {employmentType}
+                  <button onClick={() => { setEmploymentType(""); fetchJobs(1, { employmentType: "" }); }} className="ml-1 hover:text-purple-900">✕</button>
+                </span>
+              )}
+              {remoteType && (
+                <span className="flex items-center gap-1 text-xs bg-orange-50 text-orange-700 border border-orange-200 px-3 py-1 rounded-full">
+                  🏠 {remoteType}
+                  <button onClick={() => { setRemoteType(""); fetchJobs(1, { remoteType: "" }); }} className="ml-1 hover:text-orange-900">✕</button>
+                </span>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
@@ -494,5 +535,20 @@ export default function JobsPage() {
         />
       )}
     </div>
+  );
+}
+
+export default function JobsPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50">
+        <Navbar />
+        <div className="flex items-center justify-center h-64">
+          <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+        </div>
+      </div>
+    }>
+      <JobsPageInner />
+    </Suspense>
   );
 }
