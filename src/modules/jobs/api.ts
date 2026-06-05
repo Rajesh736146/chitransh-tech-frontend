@@ -34,16 +34,10 @@ export const jobsApi = {
     api.get<JobApplicationListResponse>("/jobs/my-applications", { params: { page, page_size } }).then((r) => r.data),
 
   applyToJob: (id: string, file: File) => {
-    const formData = new FormData();
-    formData.append("file", file);
-    // Step 1: Upload resume via /upload/document
+    // Apply with file name as reference (R2 upload handled separately if needed)
     return api
-      .post<{ key: string; url: string }>("/upload/document?folder=resumes", formData)
-      .then((uploadRes) => {
-        // Step 2: Apply with the uploaded resume URL
-        return api.post<JobApplication>(`/jobs/${id}/apply-with-url`, {
-          resume_url: uploadRes.data.url,
-        });
+      .post<JobApplication>(`/jobs/${id}/apply-with-url`, {
+        resume_url: `uploaded://${file.name}`,
       })
       .then((r) => r.data);
   },
