@@ -58,8 +58,14 @@ export default function ProfilePage() {
       toast.success("Profile updated");
       setEditMode(false);
       loadProfile();
-    } catch {
-      toast.error("Failed to update profile");
+    } catch (err: any) {
+      console.error("Profile update failed", err);
+      const message =
+        err?.response?.data?.detail ||
+        err?.response?.data?.message ||
+        err?.message ||
+        "Failed to update profile";
+      toast.error(message);
     }
   };
 
@@ -169,6 +175,14 @@ export default function ProfilePage() {
                         value={editData.current_company}
                         onChange={(e) => setEditData({ ...editData, current_company: e.target.value })}
                       />
+                      <input
+                        className="border border-[var(--color-border)] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
+                        placeholder="Current Position"
+                        value={editData.current_position}
+                        onChange={(e) => setEditData({ ...editData, current_position: e.target.value })}
+                      />
+                    </div>
+                    <div>
                       <input
                         className="border border-[var(--color-border)] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
                         placeholder="Location"

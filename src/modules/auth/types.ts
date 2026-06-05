@@ -20,6 +20,14 @@ export interface ForgotPasswordPayload {
   email: string;
 }
 
+export interface VerifyEmailPayload {
+  token: string;
+}
+
+export interface AskResetOtpPayload {
+  email: string;
+}
+
 export interface VerifyOtpPayload {
   email: string;
   otp: string;
@@ -29,8 +37,15 @@ export interface VerifyOtpResponse {
   reset_token: string;
 }
 
+export interface VerifyResetOtpPayload {
+  email: string;
+  otp: string;
+}
+
 export interface ResetPasswordPayload {
-  reset_token: string;
+  email?: string;
+  otp?: string;
+  reset_token?: string;
   password: string;
 }
 

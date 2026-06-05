@@ -54,7 +54,7 @@ export default function Navbar() {
 
         {/* Logo + Search */}
         <div className="flex items-center gap-2 flex-shrink-0">
-          <Link href="/dashboard" className="flex items-center">
+          <Link href="/" className="flex items-center">
             <Image
               src="/logo.png"
               alt="Chitransh Tech"

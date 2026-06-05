@@ -20,6 +20,27 @@ export const feedApi = {
   createPost: (payload: CreatePostPayload) =>
     api.post<FeedPost>("/feed/", payload).then((r) => r.data),
 
+  createPostWithMedia: (payload: {
+    content: string;
+    title?: string;
+    external_link?: string;
+    visibility?: string;
+    file: File;
+  }) => {
+    const formData = new FormData();
+    formData.append("content", payload.content);
+    if (payload.title) formData.append("title", payload.title);
+    if (payload.external_link) formData.append("external_link", payload.external_link);
+    if (payload.visibility) formData.append("visibility", payload.visibility);
+    formData.append("file", payload.file);
+
+    return api
+      .post<FeedPost>("/feed/with-media", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      })
+      .then((r) => r.data);
+  },
+
   updatePost: (postId: string, payload: UpdatePostPayload) =>
     api.patch<FeedPost>(`/feed/${postId}`, payload).then((r) => r.data),
 

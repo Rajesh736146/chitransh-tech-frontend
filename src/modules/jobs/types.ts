@@ -21,6 +21,9 @@ export interface Job {
   created_at: string;
   updated_at: string;
   skills: SkillOut[];
+  view_count?: number;
+  application_count?: number;
+  company_logo?: string | null;
 }
 
 export interface JobListResponse {
@@ -28,6 +31,26 @@ export interface JobListResponse {
   page: number;
   page_size: number;
   items: Job[];
+}
+
+export interface JobApplication {
+  id: string;
+  job_id: string;
+  applicant_id: string;
+  resume_id?: string | null;
+  resume_url?: string | null;
+  application_status: string;
+  ai_match_score?: number | null;
+  applied_at: string;
+  job_title?: string | null;
+  company_name?: string | null;
+}
+
+export interface JobApplicationListResponse {
+  total: number;
+  page: number;
+  page_size: number;
+  items: JobApplication[];
 }
 
 export interface Company {

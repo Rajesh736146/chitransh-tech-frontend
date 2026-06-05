@@ -1,10 +1,21 @@
 import api from "@/lib/axios";
-import type { Job, JobListResponse, Company, JobCreatePayload, JobSearchParams } from "./types";
+import type {
+  Job,
+  JobListResponse,
+  Company,
+  JobCreatePayload,
+  JobSearchParams,
+  JobApplication,
+  JobApplicationListResponse,
+} from "./types";
 
 export const jobsApi = {
   // ── public ──────────────────────────────────────────────────────────────
   listJobs: (params: JobSearchParams = {}) =>
     api.get<JobListResponse>("/jobs/", { params }).then((r) => r.data),
+
+  getFeaturedJobs: (limit = 10) =>
+    api.get<JobListResponse>("/jobs/featured", { params: { limit } }).then((r) => r.data),
 
   getJob: (id: string) =>
     api.get<Job>(`/jobs/${id}`).then((r) => r.data),
@@ -18,6 +29,20 @@ export const jobsApi = {
 
   getMyJobs: (page = 1, page_size = 20) =>
     api.get<JobListResponse>("/jobs/my", { params: { page, page_size } }).then((r) => r.data),
+
+  getMyApplications: (page = 1, page_size = 20) =>
+    api.get<JobApplicationListResponse>("/jobs/my-applications", { params: { page, page_size } }).then((r) => r.data),
+
+  applyToJob: (id: string, file: File) => {
+    const formData = new FormData();
+    formData.append("resume", file);
+    return api
+      .post<JobApplication>(`/jobs/${id}/apply`, formData)
+      .then((r) => r.data);
+  },
+
+  getJobApplicants: (id: string, page = 1, page_size = 20) =>
+    api.get<JobApplicationListResponse>(`/jobs/${id}/applicants`, { params: { page, page_size } }).then((r) => r.data),
 
   updateJob: (id: string, payload: Partial<JobCreatePayload> & { status?: string }) =>
     api.patch<Job>(`/jobs/${id}`, payload).then((r) => r.data),
