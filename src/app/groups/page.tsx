@@ -49,7 +49,7 @@ export default function GroupsPage() {
   return (
     <div className="min-h-screen bg-[var(--color-cream)]">
       {/* Nav */}
-      <nav className="sticky top-0 z-[100] flex items-center justify-between px-6 lg:px-12 h-[60px] bg-[rgba(245,242,236,0.88)] backdrop-blur-[16px] border-b border-[rgba(26,23,20,0.06)]">
+      <nav className="sticky top-0 z-[100] flex items-center justify-between px-4 sm:px-6 lg:px-12 h-[60px] bg-[rgba(245,242,236,0.88)] backdrop-blur-[16px] border-b border-[rgba(26,23,20,0.06)]">
         <Link href="/" className="flex items-center gap-2.5">
           <Image src="/logo.png" alt="ChitranshTech" width={30} height={30} className="w-[30px] h-[30px] object-contain" />
           <span className="font-[var(--font-serif)] text-[1.05rem] font-semibold tracking-[-0.01em] text-[var(--color-ink)]">ChitranshTech</span>
@@ -60,7 +60,7 @@ export default function GroupsPage() {
           <li><Link href="/network" className="text-[0.85rem] text-[var(--color-ink3)] hover:text-[var(--color-ink)] transition-colors">Network</Link></li>
           <li><Link href="/groups" className="text-[0.85rem] text-[var(--color-ink)] font-medium border-b-2 border-[var(--color-ink)] pb-0.5">Groups</Link></li>
         </ul>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           {user ? (
             <button onClick={() => { logout(); window.location.href = "/"; }} className="text-[0.85rem] text-[var(--color-warm)] px-3 py-1.5 rounded-[10px] hover:bg-[rgba(232,128,58,0.08)] transition-colors">Sign Out</button>
           ) : (
@@ -69,10 +69,10 @@ export default function GroupsPage() {
         </div>
       </nav>
 
-      <div className="max-w-[1100px] mx-auto px-6 py-8">
+      <div className="max-w-[1100px] mx-auto px-4 sm:px-6 py-4 sm:py-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
-          <h1 className="font-[var(--font-serif)] text-[1.4rem] font-medium text-[var(--color-ink)]">Groups</h1>
+          <h1 className="font-[var(--font-serif)] text-[1.2rem] sm:text-[1.4rem] font-medium text-[var(--color-ink)]">Groups</h1>
           {user && (
             <button onClick={() => setShowCreate(true)} className="px-5 py-2 bg-[var(--color-lime)] text-[var(--color-ink)] rounded-full text-[0.82rem] font-medium hover:bg-[var(--color-lime2)] transition-colors">
               + Create Group

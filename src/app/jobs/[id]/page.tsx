@@ -76,7 +76,7 @@ export default function JobDetailPage() {
   return (
     <div className="min-h-screen bg-[var(--color-cream)]">
       {/* Nav */}
-      <nav className="sticky top-0 z-[100] flex items-center justify-between px-6 lg:px-12 h-[60px] bg-[rgba(245,242,236,0.88)] backdrop-blur-[16px] border-b border-[rgba(26,23,20,0.06)]">
+      <nav className="sticky top-0 z-[100] flex items-center justify-between px-4 sm:px-6 lg:px-12 h-[60px] bg-[rgba(245,242,236,0.88)] backdrop-blur-[16px] border-b border-[rgba(26,23,20,0.06)]">
         <Link href="/" className="flex items-center gap-2.5">
           <Image src="/logo.png" alt="ChitranshTech" width={30} height={30} className="w-[30px] h-[30px] object-contain" />
           <span className="font-[var(--font-serif)] text-[1.05rem] font-semibold tracking-[-0.01em]">ChitranshTech</span>
@@ -86,22 +86,22 @@ export default function JobDetailPage() {
         </Link>
       </nav>
 
-      <div className="max-w-[900px] mx-auto px-6 py-10">
+      <div className="max-w-[900px] mx-auto px-4 sm:px-6 py-6 sm:py-10">
         {/* Header */}
-        <div className="bg-white border border-[rgba(26,23,20,0.06)] rounded-[20px] p-8 mb-6">
-          <div className="flex items-start justify-between mb-6">
+        <div className="bg-white border border-[rgba(26,23,20,0.06)] rounded-[20px] p-5 sm:p-8 mb-6">
+          <div className="flex flex-col sm:flex-row items-start justify-between gap-4 mb-6">
             <div>
-              <h1 className="font-[var(--font-serif)] text-[1.8rem] font-medium text-[var(--color-ink)] tracking-[-0.02em] mb-2">
+              <h1 className="font-[var(--font-serif)] text-[1.4rem] sm:text-[1.8rem] font-medium text-[var(--color-ink)] tracking-[-0.02em] mb-2">
                 {job.title}
               </h1>
-              <p className="text-[0.9rem] text-[var(--color-ink3)]">
+              <p className="text-[0.85rem] sm:text-[0.9rem] text-[var(--color-ink3)]">
                 {job.company_name || "Company"} · {job.location || "Remote"}
               </p>
             </div>
             {user && user.role_id === 1 && (
               <button
                 onClick={() => setShowApplyModal(true)}
-                className="px-7 py-3 bg-[var(--color-lime)] text-[var(--color-ink)] rounded-full text-[0.9rem] font-medium hover:bg-[var(--color-lime2)] hover:scale-[1.02] transition-all shrink-0"
+                className="w-full sm:w-auto px-7 py-3 bg-[var(--color-lime)] text-[var(--color-ink)] rounded-full text-[0.9rem] font-medium hover:bg-[var(--color-lime2)] hover:scale-[1.02] transition-all shrink-0"
               >
                 Apply Now
               </button>
@@ -137,7 +137,7 @@ export default function JobDetailPage() {
         </div>
 
         {/* Description */}
-        <div className="bg-white border border-[rgba(26,23,20,0.06)] rounded-[20px] p-8 mb-6">
+        <div className="bg-white border border-[rgba(26,23,20,0.06)] rounded-[20px] p-5 sm:p-8 mb-6">
           <h2 className="font-[var(--font-serif)] text-[1.1rem] font-medium text-[var(--color-ink)] mb-4">Job Description</h2>
           <div className="text-[0.88rem] text-[var(--color-ink2)] leading-[1.8] whitespace-pre-wrap">
             {job.description}
@@ -146,7 +146,7 @@ export default function JobDetailPage() {
 
         {/* Skills */}
         {job.skills.length > 0 && (
-          <div className="bg-white border border-[rgba(26,23,20,0.06)] rounded-[20px] p-8 mb-6">
+          <div className="bg-white border border-[rgba(26,23,20,0.06)] rounded-[20px] p-5 sm:p-8 mb-6">
             <h2 className="font-[var(--font-serif)] text-[1.1rem] font-medium text-[var(--color-ink)] mb-4">Required Skills</h2>
             <div className="flex flex-wrap gap-2">
               {job.skills.map((s) => (
@@ -167,7 +167,7 @@ export default function JobDetailPage() {
 
         {/* Not logged in CTA */}
         {!user && (
-          <div className="bg-[var(--color-ink)] rounded-[20px] p-8 text-center">
+          <div className="bg-[var(--color-ink)] rounded-[20px] p-6 sm:p-8 text-center">
             <h3 className="font-[var(--font-serif)] text-[1.2rem] text-[var(--color-cream)] mb-2">Interested in this role?</h3>
             <p className="text-[rgba(245,242,236,0.5)] text-[0.88rem] mb-5">Sign in to apply with your resume.</p>
             <Link href="/login" className="inline-block px-8 py-3 bg-[var(--color-lime)] text-[var(--color-ink)] rounded-full text-[0.9rem] font-medium hover:bg-[var(--color-lime2)] transition-all">

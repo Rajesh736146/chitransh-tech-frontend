@@ -71,19 +71,42 @@ export default function AdminPage() {
   return (
     <div className="min-h-screen bg-[#0f0f12] text-white">
       {/* Top bar */}
-      <header className="h-[56px] bg-[#18181b] border-b border-[#2a2a2e] flex items-center justify-between px-6 sticky top-0 z-50">
+      <header className="h-[56px] bg-[#18181b] border-b border-[#2a2a2e] flex items-center justify-between px-4 sm:px-6 sticky top-0 z-50">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 bg-gradient-to-br from-violet-500 to-indigo-600 rounded-lg flex items-center justify-center text-[0.7rem] font-bold">CT</div>
-          <span className="text-[0.95rem] font-semibold text-white">ChitranshTech Admin</span>
+          <span className="text-[0.95rem] font-semibold text-white hidden sm:inline">ChitranshTech Admin</span>
+          <span className="text-[0.95rem] font-semibold text-white sm:hidden">Admin</span>
         </div>
-        <div className="flex items-center gap-4">
-          <span className="text-[0.75rem] text-gray-400">Welcome, {user?.full_name || "Admin"}</span>
-          <Link href="/" className="text-[0.75rem] text-gray-400 hover:text-white transition-colors">View Site</Link>
+        <div className="flex items-center gap-2 sm:gap-4">
+          <span className="text-[0.75rem] text-gray-400 hidden sm:inline">Welcome, {user?.full_name || "Admin"}</span>
+          <Link href="/" className="text-[0.75rem] text-gray-400 hover:text-white transition-colors hidden sm:inline">View Site</Link>
           <button onClick={() => { logout(); router.push("/login"); }} className="text-[0.75rem] text-red-400 hover:text-red-300 transition-colors">Logout</button>
         </div>
       </header>
 
-      <div className="flex">
+      <div className="flex flex-col lg:flex-row">
+        {/* Mobile tab selector */}
+        <div className="lg:hidden overflow-x-auto bg-[#18181b] border-b border-[#2a2a2e] px-4 py-2">
+          <div className="flex gap-1 min-w-max">
+            {TABS.map((t) => (
+              <button
+                key={t.id}
+                onClick={() => !t.comingSoon && setActiveTab(t.id)}
+                disabled={t.comingSoon}
+                className={`px-3 py-2 rounded-lg text-[0.75rem] font-medium whitespace-nowrap transition-all ${
+                  t.comingSoon
+                    ? "text-gray-600 cursor-not-allowed opacity-60"
+                    : activeTab === t.id
+                    ? "bg-white/10 text-white"
+                    : "text-gray-400"
+                }`}
+              >
+                {t.icon} {t.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* Sidebar */}
         <aside className="w-[220px] min-h-[calc(100vh-56px)] bg-[#18181b] border-r border-[#2a2a2e] p-4 sticky top-[56px] h-[calc(100vh-56px)] overflow-y-auto hidden lg:block">
           <p className="text-[0.65rem] text-gray-500 uppercase tracking-[0.1em] mb-3 px-3">Navigation</p>
@@ -108,7 +131,7 @@ export default function AdminPage() {
         </aside>
 
         {/* Main content */}
-        <main className="flex-1 p-6 lg:p-8 min-w-0">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 min-w-0">
           {activeTab === "dashboard" && <DashboardTab stats={stats} />}
           {activeTab === "users" && <UsersTab />}
           {activeTab === "jobs" && <JobsTab />}
@@ -136,7 +159,7 @@ function DashboardTab({ stats }: { stats: DashboardStats }) {
   return (
     <div>
       <h2 className="text-[1.4rem] font-semibold text-white mb-6">Platform Overview</h2>
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {cards.map((c) => (
           <div key={c.label} className="bg-[#18181b] border border-[#2a2a2e] rounded-xl p-5 hover:border-[#3a3a3e] transition-colors">
             <p className="text-[0.7rem] text-gray-500 uppercase tracking-[0.06em] mb-2">{c.label}</p>
@@ -186,11 +209,11 @@ function UsersTab() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-5">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-5">
         <h2 className="text-[1.4rem] font-semibold text-white">Users <span className="text-gray-500 text-[0.9rem]">({total})</span></h2>
-        <div className="flex gap-2">
-          <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} onKeyDown={(e) => e.key === "Enter" && load(1)} placeholder="Search name or email..." className="px-3 py-2 bg-[#1e1e22] border border-[#2a2a2e] rounded-lg text-[0.82rem] text-white placeholder:text-gray-500 w-[220px] focus:outline-none focus:border-violet-500" />
-          <button onClick={() => load(1)} className="px-4 py-2 bg-violet-600 text-white rounded-lg text-[0.8rem] font-medium hover:bg-violet-500 transition-colors">Search</button>
+        <div className="flex gap-2 w-full sm:w-auto">
+          <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} onKeyDown={(e) => e.key === "Enter" && load(1)} placeholder="Search name or email..." className="px-3 py-2 bg-[#1e1e22] border border-[#2a2a2e] rounded-lg text-[0.82rem] text-white placeholder:text-gray-500 w-full sm:w-[220px] focus:outline-none focus:border-violet-500" />
+          <button onClick={() => load(1)} className="px-4 py-2 bg-violet-600 text-white rounded-lg text-[0.8rem] font-medium hover:bg-violet-500 transition-colors shrink-0">Search</button>
         </div>
       </div>
 
@@ -278,11 +301,11 @@ function JobsTab() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-5">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-5">
         <h2 className="text-[1.4rem] font-semibold text-white">Jobs <span className="text-gray-500 text-[0.9rem]">({total})</span></h2>
-        <div className="flex gap-2">
-          <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} onKeyDown={(e) => e.key === "Enter" && load(1)} placeholder="Search title or company..." className="px-3 py-2 bg-[#1e1e22] border border-[#2a2a2e] rounded-lg text-[0.82rem] text-white placeholder:text-gray-500 w-[220px] focus:outline-none focus:border-violet-500" />
-          <button onClick={() => load(1)} className="px-4 py-2 bg-violet-600 text-white rounded-lg text-[0.8rem] font-medium hover:bg-violet-500">Search</button>
+        <div className="flex gap-2 w-full sm:w-auto">
+          <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} onKeyDown={(e) => e.key === "Enter" && load(1)} placeholder="Search title or company..." className="px-3 py-2 bg-[#1e1e22] border border-[#2a2a2e] rounded-lg text-[0.82rem] text-white placeholder:text-gray-500 w-full sm:w-[220px] focus:outline-none focus:border-violet-500" />
+          <button onClick={() => load(1)} className="px-4 py-2 bg-violet-600 text-white rounded-lg text-[0.8rem] font-medium hover:bg-violet-500 shrink-0">Search</button>
         </div>
       </div>
 
@@ -416,11 +439,11 @@ function CompaniesTab() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-5">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-5">
         <h2 className="text-[1.4rem] font-semibold text-white">Companies <span className="text-gray-500 text-[0.9rem]">({total})</span></h2>
-        <div className="flex gap-2">
-          <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} onKeyDown={(e) => e.key === "Enter" && load()} placeholder="Search company..." className="px-3 py-2 bg-[#1e1e22] border border-[#2a2a2e] rounded-lg text-[0.82rem] text-white placeholder:text-gray-500 w-[200px] focus:outline-none focus:border-violet-500" />
-          <button onClick={load} className="px-4 py-2 bg-violet-600 text-white rounded-lg text-[0.8rem] font-medium hover:bg-violet-500">Search</button>
+        <div className="flex gap-2 w-full sm:w-auto">
+          <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} onKeyDown={(e) => e.key === "Enter" && load()} placeholder="Search company..." className="px-3 py-2 bg-[#1e1e22] border border-[#2a2a2e] rounded-lg text-[0.82rem] text-white placeholder:text-gray-500 w-full sm:w-[200px] focus:outline-none focus:border-violet-500" />
+          <button onClick={load} className="px-4 py-2 bg-violet-600 text-white rounded-lg text-[0.8rem] font-medium hover:bg-violet-500 shrink-0">Search</button>
         </div>
       </div>
 

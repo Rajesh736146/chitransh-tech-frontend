@@ -73,7 +73,7 @@ export default function GroupDetailPage() {
   return (
     <div className="min-h-screen bg-[var(--color-cream)]">
       {/* Nav */}
-      <nav className="sticky top-0 z-[100] flex items-center justify-between px-6 lg:px-12 h-[60px] bg-[rgba(245,242,236,0.88)] backdrop-blur-[16px] border-b border-[rgba(26,23,20,0.06)]">
+      <nav className="sticky top-0 z-[100] flex items-center justify-between px-4 sm:px-6 lg:px-12 h-[60px] bg-[rgba(245,242,236,0.88)] backdrop-blur-[16px] border-b border-[rgba(26,23,20,0.06)]">
         <Link href="/" className="flex items-center gap-2.5">
           <Image src="/logo.png" alt="ChitranshTech" width={30} height={30} className="w-[30px] h-[30px] object-contain" />
           <span className="font-[var(--font-serif)] text-[1.05rem] font-semibold tracking-[-0.01em] text-[var(--color-ink)]">ChitranshTech</span>
@@ -82,15 +82,15 @@ export default function GroupDetailPage() {
       </nav>
 
       {/* Group header */}
-      <div className="max-w-[900px] mx-auto px-4 pt-6">
+      <div className="max-w-[900px] mx-auto px-3 sm:px-4 pt-4 sm:pt-6">
         <div className="bg-white border border-[rgba(26,23,20,0.06)] rounded-[20px] overflow-hidden mb-6">
           <div className="h-32 bg-gradient-to-r from-[var(--color-teal)] to-[var(--color-teal2)] relative">
             {group.cover_image && <img src={group.cover_image} alt="" className="w-full h-full object-cover" />}
           </div>
-          <div className="p-6">
-            <div className="flex items-start justify-between">
+          <div className="p-4 sm:p-6">
+            <div className="flex flex-col sm:flex-row items-start justify-between gap-3">
               <div>
-                <h1 className="font-[var(--font-serif)] text-[1.5rem] font-medium text-[var(--color-ink)] tracking-[-0.02em]">{group.name}</h1>
+                <h1 className="font-[var(--font-serif)] text-[1.2rem] sm:text-[1.5rem] font-medium text-[var(--color-ink)] tracking-[-0.02em]">{group.name}</h1>
                 {group.description && <p className="text-[0.85rem] text-[var(--color-ink3)] mt-1 max-w-[500px]">{group.description}</p>}
                 <div className="flex items-center gap-4 mt-3 text-[0.78rem] text-[var(--color-ink4)]">
                   <span>👥 {group.member_count} members</span>
@@ -108,7 +108,7 @@ export default function GroupDetailPage() {
       </div>
 
       {/* Content: Posts + Members sidebar */}
-      <div className="max-w-[900px] mx-auto px-4 pb-8 grid grid-cols-1 lg:grid-cols-[1fr_240px] gap-6">
+      <div className="max-w-[900px] mx-auto px-3 sm:px-4 pb-6 sm:pb-8 grid grid-cols-1 lg:grid-cols-[1fr_240px] gap-4 sm:gap-6">
         {/* Posts feed */}
         <div>
           {/* Create post (only for members) */}

@@ -49,7 +49,7 @@ export default function FeedPage() {
   return (
     <div className="min-h-screen bg-[var(--color-cream)]">
       {/* Nav */}
-      <nav className="sticky top-0 z-[100] flex items-center justify-between px-6 lg:px-12 h-[60px] bg-[rgba(245,242,236,0.88)] backdrop-blur-[16px] border-b border-[rgba(26,23,20,0.06)]">
+      <nav className="sticky top-0 z-[100] flex items-center justify-between px-4 sm:px-6 lg:px-12 h-[60px] bg-[rgba(245,242,236,0.88)] backdrop-blur-[16px] border-b border-[rgba(26,23,20,0.06)]">
         <Link href="/" className="flex items-center gap-2.5">
           <Image src="/logo.png" alt="ChitranshTech" width={30} height={30} className="w-[30px] h-[30px] object-contain" />
           <span className="font-[var(--font-serif)] text-[1.05rem] font-semibold tracking-[-0.01em] text-[var(--color-ink)]">ChitranshTech</span>
@@ -62,7 +62,7 @@ export default function FeedPage() {
           <li><Link href="/resume/build" className="text-[0.85rem] text-[var(--color-ink3)] hover:text-[var(--color-ink)] transition-colors">Build ATS CV</Link></li>
         </ul>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           {user ? (
             <>
               <Link href="/dashboard" className="text-[0.85rem] text-[var(--color-ink3)] hover:text-[var(--color-ink)] transition-colors">Dashboard</Link>
@@ -79,7 +79,7 @@ export default function FeedPage() {
       </nav>
 
       {/* Main layout: 3 columns */}
-      <div className="max-w-[1200px] mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-[240px_1fr_280px] gap-6">
+      <div className="max-w-[1200px] mx-auto px-3 sm:px-4 py-4 sm:py-6 grid grid-cols-1 lg:grid-cols-[240px_1fr_280px] gap-4 sm:gap-6">
         {/* Left sidebar */}
         <aside className="hidden lg:block">
           <div className="bg-white border border-[rgba(26,23,20,0.06)] rounded-[14px] p-5 mb-4">

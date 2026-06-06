@@ -111,7 +111,7 @@ function NetworkContent() {
   return (
     <div className="min-h-screen bg-[var(--color-cream)]">
       {/* Nav */}
-      <nav className="sticky top-0 z-[100] flex items-center justify-between px-6 lg:px-12 h-[60px] bg-[rgba(245,242,236,0.88)] backdrop-blur-[16px] border-b border-[rgba(26,23,20,0.06)]">
+      <nav className="sticky top-0 z-[100] flex items-center justify-between px-4 sm:px-6 lg:px-12 h-[60px] bg-[rgba(245,242,236,0.88)] backdrop-blur-[16px] border-b border-[rgba(26,23,20,0.06)]">
         <Link href="/" className="flex items-center gap-2.5">
           <Image src="/logo.png" alt="ChitranshTech" width={30} height={30} className="w-[30px] h-[30px] object-contain" />
           <span className="font-[var(--font-serif)] text-[1.05rem] font-semibold tracking-[-0.01em] text-[var(--color-ink)]">ChitranshTech</span>
@@ -122,7 +122,7 @@ function NetworkContent() {
           <li><Link href="/network" className="text-[0.85rem] text-[var(--color-ink)] font-medium border-b-2 border-[var(--color-ink)] pb-0.5">Network</Link></li>
           <li><Link href="/resume/build" className="text-[0.85rem] text-[var(--color-ink3)] hover:text-[var(--color-ink)] transition-colors">Build ATS CV</Link></li>
         </ul>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           {user ? (
             <>
               <Link href="/dashboard" className="text-[0.85rem] text-[var(--color-ink3)] hover:text-[var(--color-ink)] transition-colors">Dashboard</Link>
@@ -134,7 +134,7 @@ function NetworkContent() {
         </div>
       </nav>
 
-      <div className="max-w-[1200px] mx-auto px-6 py-8 flex gap-6">
+      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 py-4 sm:py-8 flex gap-6">
         {/* Left Sidebar — Filters */}
         <aside className="w-[260px] shrink-0 hidden lg:block">
           <div className="bg-white border border-[rgba(26,23,20,0.06)] rounded-[16px] p-5 sticky top-[76px]">
@@ -201,9 +201,9 @@ function NetworkContent() {
         {/* Main content */}
         <div className="flex-1 min-w-0">
           {/* Header with tabs */}
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 mb-6">
             <div>
-              <h1 className="font-[var(--font-serif)] text-[1.4rem] font-medium text-[var(--color-ink)]">Discover</h1>
+              <h1 className="font-[var(--font-serif)] text-[1.2rem] sm:text-[1.4rem] font-medium text-[var(--color-ink)]">Discover</h1>
             </div>
             <div className="flex gap-2">
               <button onClick={() => setActiveTab("people")} className={`px-4 py-2 rounded-full text-[0.82rem] font-medium transition-all ${activeTab === "people" ? "bg-[var(--color-ink)] text-[var(--color-cream)]" : "bg-white border border-[rgba(26,23,20,0.08)] text-[var(--color-ink3)]"}`}>

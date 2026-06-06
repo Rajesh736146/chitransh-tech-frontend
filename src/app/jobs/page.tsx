@@ -31,41 +31,56 @@ const LOGO_COLORS = [
 function JobsNavbar() {
   useAuthHydration();
   const { user } = useAuthStore();
+  const [mobileOpen, setMobileOpen] = useState(false);
+
   return (
-    <nav className="sticky top-0 z-[100] flex items-center justify-between px-6 lg:px-12 h-[60px] bg-[rgba(245,242,236,0.88)] backdrop-blur-[16px] border-b border-[rgba(26,23,20,0.06)]">
-      <Link href="/" className="flex items-center gap-2.5">
-        <Image src="/logo.png" alt="ChitranshTech" width={30} height={30} className="w-[30px] h-[30px] object-contain" />
-        <span className="font-[var(--font-serif)] text-[1.05rem] font-semibold tracking-[-0.01em] text-[var(--color-ink)]">ChitranshTech</span>
-      </Link>
-      <ul className="hidden md:flex items-center gap-10 absolute left-1/2 -translate-x-1/2">
-        <li><Link href="/jobs" className="text-[0.85rem] text-[var(--color-ink)] font-medium border-b-2 border-[var(--color-ink)] pb-0.5">Find Jobs</Link></li>
-        <li><Link href="/resume/build" className="text-[0.85rem] text-[var(--color-ink3)] hover:text-[var(--color-ink)] transition-colors">Build ATS CV</Link></li>
-        {user && user.role_id === 2 && (
-          <li><Link href="/dashboard" className="text-[0.85rem] text-[var(--color-ink3)] hover:text-[var(--color-ink)] transition-colors">Post a Job</Link></li>
-        )}
-        <li><Link href="/feed" className="text-[0.85rem] text-[var(--color-ink3)] hover:text-[var(--color-ink)] transition-colors">Feed</Link></li>
-        <li><Link href="/profile" className="text-[0.85rem] text-[var(--color-ink3)] hover:text-[var(--color-ink)] transition-colors">Profile</Link></li>
-      </ul>
-      <div className="flex items-center gap-3">
-        {user ? (
-          <>
-            <Link href="/dashboard" className="text-[0.85rem] font-medium text-[var(--color-cream)] bg-[var(--color-ink)] px-5 py-[0.45rem] rounded-full hover:bg-[var(--color-ink2)] transition-all">
-              Dashboard
-            </Link>
-            <button
-              onClick={() => { useAuthStore.getState().logout(); window.location.href = "/"; }}
-              className="text-[0.85rem] text-[var(--color-ink3)] px-3 py-1.5 rounded-[10px] hover:bg-[var(--color-cream2)] hover:text-[var(--color-ink)] transition-colors"
-            >
-              Sign Out
-            </button>
-          </>
-        ) : (
-          <Link href="/login" className="text-[0.85rem] font-medium text-[var(--color-cream)] bg-[var(--color-ink)] px-5 py-[0.45rem] rounded-full hover:bg-[var(--color-ink2)] transition-all">
-            Sign In
-          </Link>
-        )}
-      </div>
-    </nav>
+    <>
+      <nav className="sticky top-0 z-[100] flex items-center justify-between px-4 md:px-6 lg:px-12 h-[60px] bg-[rgba(245,242,236,0.88)] backdrop-blur-[16px] border-b border-[rgba(26,23,20,0.06)]">
+        <Link href="/" className="flex items-center gap-2.5">
+          <Image src="/logo.png" alt="ChitranshTech" width={30} height={30} className="w-[30px] h-[30px] object-contain" />
+          <span className="hidden sm:inline font-[var(--font-serif)] text-[1.05rem] font-semibold tracking-[-0.01em] text-[var(--color-ink)]">ChitranshTech</span>
+        </Link>
+        <ul className="hidden md:flex items-center gap-10 absolute left-1/2 -translate-x-1/2">
+          <li><Link href="/jobs" className="text-[0.85rem] text-[var(--color-ink)] font-medium border-b-2 border-[var(--color-ink)] pb-0.5">Find Jobs</Link></li>
+          <li><Link href="/feed" className="text-[0.85rem] text-[var(--color-ink3)] hover:text-[var(--color-ink)] transition-colors">Feed</Link></li>
+          <li><Link href="/network" className="text-[0.85rem] text-[var(--color-ink3)] hover:text-[var(--color-ink)] transition-colors">Network</Link></li>
+        </ul>
+        <div className="hidden md:flex items-center gap-3">
+          {user ? (
+            <>
+              <Link href="/dashboard" className="text-[0.85rem] font-medium text-[var(--color-cream)] bg-[var(--color-ink)] px-5 py-[0.45rem] rounded-full hover:bg-[var(--color-ink2)] transition-all">Dashboard</Link>
+              <button onClick={() => { useAuthStore.getState().logout(); window.location.href = "/"; }} className="text-[0.85rem] text-[var(--color-ink3)] px-3 py-1.5 rounded-[10px] hover:bg-[var(--color-cream2)]">Sign Out</button>
+            </>
+          ) : (
+            <Link href="/login" className="text-[0.85rem] font-medium text-[var(--color-cream)] bg-[var(--color-ink)] px-5 py-[0.45rem] rounded-full">Sign In</Link>
+          )}
+        </div>
+        <button onClick={() => setMobileOpen(!mobileOpen)} className="md:hidden w-9 h-9 flex flex-col items-center justify-center gap-[5px] rounded-[8px] hover:bg-[var(--color-cream2)]">
+          <span className="w-[18px] h-[2px] bg-[var(--color-ink)] rounded-full" />
+          <span className="w-[18px] h-[2px] bg-[var(--color-ink)] rounded-full" />
+          <span className="w-[18px] h-[2px] bg-[var(--color-ink)] rounded-full" />
+        </button>
+      </nav>
+      {mobileOpen && (
+        <div className="fixed inset-0 z-[200] md:hidden">
+          <div className="absolute inset-0 bg-black/30" onClick={() => setMobileOpen(false)} />
+          <div className="absolute top-0 right-0 w-[260px] h-full bg-[var(--color-cream)] border-l border-[rgba(26,23,20,0.1)] p-6 shadow-xl">
+            <button onClick={() => setMobileOpen(false)} className="absolute top-4 right-4 text-[1.2rem] text-[var(--color-ink3)]">✕</button>
+            <div className="mt-10 space-y-2">
+              <Link href="/jobs" onClick={() => setMobileOpen(false)} className="block px-4 py-3 text-[0.9rem] text-[var(--color-ink)] font-medium rounded-[10px] bg-[var(--color-cream2)]">Find Jobs</Link>
+              <Link href="/feed" onClick={() => setMobileOpen(false)} className="block px-4 py-3 text-[0.9rem] text-[var(--color-ink)] rounded-[10px]">Feed</Link>
+              <Link href="/network" onClick={() => setMobileOpen(false)} className="block px-4 py-3 text-[0.9rem] text-[var(--color-ink)] rounded-[10px]">Network</Link>
+              <Link href="/dashboard" onClick={() => setMobileOpen(false)} className="block px-4 py-3 text-[0.9rem] text-[var(--color-ink)] rounded-[10px]">Dashboard</Link>
+              {user ? (
+                <button onClick={() => { useAuthStore.getState().logout(); window.location.href = "/"; }} className="block w-full text-left px-4 py-3 text-[0.9rem] text-[var(--color-warm)]">Sign Out</button>
+              ) : (
+                <Link href="/login" onClick={() => setMobileOpen(false)} className="block px-4 py-3 text-[0.9rem] text-[var(--color-cream)] bg-[var(--color-ink)] rounded-[10px] text-center">Sign In</Link>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 
@@ -277,6 +292,7 @@ function JobsPageContent() {
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState(initialSearch);
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
 
   const [filters, setFilters] = useState({
     category: "",
@@ -334,9 +350,9 @@ function JobsPageContent() {
 
       {/* Search bar */}
       <div className="border-b border-[rgba(26,23,20,0.06)] bg-white/60 backdrop-blur-sm">
-        <div className="max-w-[1300px] mx-auto px-6 lg:px-12 py-4">
-          <div className="flex items-center gap-3">
-            <div className="flex-1 flex items-center gap-2 bg-white border border-[rgba(26,23,20,0.1)] rounded-full px-5 py-2.5 focus-within:border-[var(--color-teal)] focus-within:shadow-[0_2px_12px_rgba(44,110,106,0.1)] transition-all">
+        <div className="max-w-[1300px] mx-auto px-4 md:px-6 lg:px-12 py-3 md:py-4">
+          <div className="flex items-center gap-2 md:gap-3">
+            <div className="flex-1 flex items-center gap-2 bg-white border border-[rgba(26,23,20,0.1)] rounded-full px-4 py-2 md:py-2.5 focus-within:border-[var(--color-teal)] focus-within:shadow-[0_2px_12px_rgba(44,110,106,0.1)] transition-all">
               <span className="text-[var(--color-ink4)]">⌕</span>
               <input
                 type="text"
@@ -344,36 +360,43 @@ function JobsPageContent() {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSearch()}
                 placeholder="Job title, skill, or company..."
-                className="flex-1 bg-transparent border-none outline-none text-[0.88rem] text-[var(--color-ink)] placeholder:text-[var(--color-ink4)]"
+                className="flex-1 bg-transparent border-none outline-none text-[0.85rem] md:text-[0.88rem] text-[var(--color-ink)] placeholder:text-[var(--color-ink4)]"
               />
             </div>
             <button
               onClick={handleSearch}
-              className="px-7 py-2.5 bg-[var(--color-ink)] text-[var(--color-cream)] rounded-full text-[0.85rem] font-medium hover:bg-[var(--color-ink2)] transition-all shrink-0"
+              className="px-4 md:px-7 py-2 md:py-2.5 bg-[var(--color-ink)] text-[var(--color-cream)] rounded-full text-[0.82rem] md:text-[0.85rem] font-medium hover:bg-[var(--color-ink2)] transition-all shrink-0"
             >
-              Start Searching
+              Search
             </button>
           </div>
         </div>
       </div>
 
       {/* Content */}
-      <div className="max-w-[1300px] mx-auto px-6 lg:px-12 py-8">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="font-[var(--font-serif)] text-[1.4rem] font-medium text-[var(--color-ink)]">
+      <div className="max-w-[1300px] mx-auto px-4 md:px-6 lg:px-12 py-6 md:py-8">
+        <div className="flex items-center justify-between mb-4 md:mb-6">
+          <h1 className="font-[var(--font-serif)] text-[1.1rem] md:text-[1.4rem] font-medium text-[var(--color-ink)]">
             <span className="text-[var(--color-ink2)]">{total.toLocaleString()}</span> Jobs Found
           </h1>
-          <span className="text-[0.8rem] text-[var(--color-ink4)]">Sort by: Newest Post</span>
+          <button onClick={() => setShowMobileFilters(!showMobileFilters)} className="lg:hidden px-3 py-1.5 border border-[rgba(26,23,20,0.1)] rounded-[8px] text-[0.78rem] text-[var(--color-ink3)]">
+            ☰ Filters
+          </button>
+          <span className="text-[0.8rem] text-[var(--color-ink4)] hidden md:block">Sort by: Newest Post</span>
         </div>
 
-        <div className="flex gap-8">
-          {/* Sidebar */}
-          <Sidebar
-            filters={filters}
-            setFilters={setFilters}
-            onApply={handleApplyFilters}
-            onReset={handleResetFilters}
-          />
+        {/* Mobile filters */}
+        {showMobileFilters && (
+          <div className="lg:hidden mb-4">
+            <Sidebar filters={filters} setFilters={setFilters} onApply={() => { handleApplyFilters(); setShowMobileFilters(false); }} onReset={() => { handleResetFilters(); setShowMobileFilters(false); }} />
+          </div>
+        )}
+
+        <div className="flex gap-6 lg:gap-8">
+          {/* Sidebar — hidden on mobile */}
+          <div className="hidden lg:block">
+            <Sidebar filters={filters} setFilters={setFilters} onApply={handleApplyFilters} onReset={handleResetFilters} />
+          </div>
 
           {/* Job grid */}
           <div className="flex-1">

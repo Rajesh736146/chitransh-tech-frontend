@@ -54,7 +54,7 @@ export default function SignUpPage() {
   return (
     <div className="min-h-screen bg-[var(--color-cream)] flex">
       {/* Left — Form */}
-      <div className="flex-1 flex items-center justify-center px-6 py-12">
+      <div className="flex-1 flex items-center justify-center px-4 sm:px-6 py-8 sm:py-12">
         <div className="w-full max-w-[420px]">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5 mb-10">
@@ -62,7 +62,7 @@ export default function SignUpPage() {
             <span className="font-[var(--font-serif)] text-[1.05rem] font-semibold tracking-[-0.01em]">ChitranshTech</span>
           </Link>
 
-          <h1 className="font-[var(--font-serif)] text-[2rem] font-medium tracking-[-0.02em] text-[var(--color-ink)] mb-2">
+          <h1 className="font-[var(--font-serif)] text-[1.6rem] sm:text-[2rem] font-medium tracking-[-0.02em] text-[var(--color-ink)] mb-2">
             Create your account
           </h1>
           <p className="text-[0.9rem] text-[var(--color-ink3)] mb-8">

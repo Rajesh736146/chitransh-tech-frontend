@@ -81,7 +81,7 @@ export default function MyProfilePage() {
   return (
     <div className="min-h-screen bg-[var(--color-cream)]">
       {/* Nav */}
-      <nav className="sticky top-0 z-[100] flex items-center justify-between px-6 lg:px-12 h-[60px] bg-[rgba(245,242,236,0.88)] backdrop-blur-[16px] border-b border-[rgba(26,23,20,0.06)]">
+      <nav className="sticky top-0 z-[100] flex items-center justify-between px-4 sm:px-6 lg:px-12 h-[60px] bg-[rgba(245,242,236,0.88)] backdrop-blur-[16px] border-b border-[rgba(26,23,20,0.06)]">
         <Link href="/" className="flex items-center gap-2.5">
           <Image src="/logo.png" alt="ChitranshTech" width={30} height={30} className="w-[30px] h-[30px] object-contain" />
           <span className="font-[var(--font-serif)] text-[1.05rem] font-semibold tracking-[-0.01em] text-[var(--color-ink)]">ChitranshTech</span>
@@ -92,27 +92,27 @@ export default function MyProfilePage() {
           <li><Link href="/network" className="text-[0.85rem] text-[var(--color-ink3)] hover:text-[var(--color-ink)] transition-colors">Network</Link></li>
           <li><Link href="/profile" className="text-[0.85rem] text-[var(--color-ink)] font-medium border-b-2 border-[var(--color-ink)] pb-0.5">Profile</Link></li>
         </ul>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <Link href="/dashboard" className="text-[0.85rem] text-[var(--color-ink3)] hover:text-[var(--color-ink)] transition-colors">Dashboard</Link>
           <button onClick={() => { logout(); router.push("/"); }} className="text-[0.85rem] text-[var(--color-warm)] px-3 py-1.5 rounded-[10px] hover:bg-[rgba(232,128,58,0.08)] transition-colors">Sign Out</button>
         </div>
       </nav>
 
-      <div className="max-w-[900px] mx-auto px-4 py-8">
+      <div className="max-w-[900px] mx-auto px-3 sm:px-4 py-4 sm:py-8">
         {/* Profile header */}
         <div className="bg-white border border-[rgba(26,23,20,0.06)] rounded-[20px] overflow-hidden mb-6">
           <div className="h-28 bg-gradient-to-r from-[var(--color-ink)] via-[var(--color-teal2)] to-[var(--color-teal)]" />
-          <div className="px-7 pb-7">
+          <div className="px-4 sm:px-7 pb-5 sm:pb-7">
             <div className="-mt-12 flex items-end justify-between mb-5">
-              <div className="w-24 h-24 rounded-full bg-[var(--color-cream)] border-4 border-white flex items-center justify-center font-[var(--font-serif)] text-[2rem] font-semibold text-[var(--color-ink)] shadow-md">
+              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-[var(--color-cream)] border-4 border-white flex items-center justify-center font-[var(--font-serif)] text-[1.5rem] sm:text-[2rem] font-semibold text-[var(--color-ink)] shadow-md">
                 {profile.full_name?.[0]?.toUpperCase()}
               </div>
-              <Link href="/dashboard" className="px-5 py-2 bg-[var(--color-lime)] text-[var(--color-ink)] rounded-full text-[0.82rem] font-medium hover:bg-[var(--color-lime2)] transition-colors">
+              <Link href="/dashboard" className="px-4 sm:px-5 py-2 bg-[var(--color-lime)] text-[var(--color-ink)] rounded-full text-[0.78rem] sm:text-[0.82rem] font-medium hover:bg-[var(--color-lime2)] transition-colors">
                 ✏️ Edit Profile
               </Link>
             </div>
 
-            <h1 className="font-[var(--font-serif)] text-[1.6rem] font-medium text-[var(--color-ink)] tracking-[-0.02em]">{profile.full_name}</h1>
+            <h1 className="font-[var(--font-serif)] text-[1.3rem] sm:text-[1.6rem] font-medium text-[var(--color-ink)] tracking-[-0.02em]">{profile.full_name}</h1>
             <p className="text-[0.9rem] text-[var(--color-ink3)] mt-0.5">{profile.headline || profile.email}</p>
 
             <div className="flex flex-wrap items-center gap-4 mt-2 text-[0.78rem] text-[var(--color-ink4)]">
@@ -123,18 +123,18 @@ export default function MyProfilePage() {
             </div>
 
             {/* Stats */}
-            <div className="flex gap-6 mt-5 pt-5 border-t border-[rgba(26,23,20,0.06)]">
+            <div className="flex flex-wrap gap-4 sm:gap-6 mt-5 pt-5 border-t border-[rgba(26,23,20,0.06)]">
               <button onClick={() => setShowConnections(showConnections === "followers" ? null : "followers")} className="text-left hover:opacity-80 transition-opacity">
-                <span className="font-[var(--font-serif)] text-[1.1rem] font-semibold text-[var(--color-ink)]">{profile.follower_count}</span>
-                <span className="text-[0.78rem] text-[var(--color-ink4)] ml-1.5">followers</span>
+                <span className="font-[var(--font-serif)] text-[1rem] sm:text-[1.1rem] font-semibold text-[var(--color-ink)]">{profile.follower_count}</span>
+                <span className="text-[0.72rem] sm:text-[0.78rem] text-[var(--color-ink4)] ml-1.5">followers</span>
               </button>
               <button onClick={() => setShowConnections(showConnections === "following" ? null : "following")} className="text-left hover:opacity-80 transition-opacity">
-                <span className="font-[var(--font-serif)] text-[1.1rem] font-semibold text-[var(--color-ink)]">{profile.following_count}</span>
-                <span className="text-[0.78rem] text-[var(--color-ink4)] ml-1.5">following</span>
+                <span className="font-[var(--font-serif)] text-[1rem] sm:text-[1.1rem] font-semibold text-[var(--color-ink)]">{profile.following_count}</span>
+                <span className="text-[0.72rem] sm:text-[0.78rem] text-[var(--color-ink4)] ml-1.5">following</span>
               </button>
               <div>
-                <span className="font-[var(--font-serif)] text-[1.1rem] font-semibold text-[var(--color-ink)]">{profile.profile_view_count}</span>
-                <span className="text-[0.78rem] text-[var(--color-ink4)] ml-1.5">profile views</span>
+                <span className="font-[var(--font-serif)] text-[1rem] sm:text-[1.1rem] font-semibold text-[var(--color-ink)]">{profile.profile_view_count}</span>
+                <span className="text-[0.72rem] sm:text-[0.78rem] text-[var(--color-ink4)] ml-1.5">profile views</span>
               </div>
             </div>
           </div>

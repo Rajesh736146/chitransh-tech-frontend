@@ -32,50 +32,87 @@ const LOGO_COLORS = [
 function Navbar() {
   useAuthHydration();
   const { user } = useAuthStore();
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-[100] flex items-center justify-between px-6 lg:px-12 h-[60px] bg-[rgba(245,242,236,0.88)] backdrop-blur-[16px] border-b border-[rgba(26,23,20,0.06)]">
-      <Link href="/" className="flex items-center gap-2.5 no-underline">
-        <Image src="/logo.png" alt="ChitranshTech" width={30} height={30} className="w-[30px] h-[30px] object-contain" />
-        <span className="font-[var(--font-serif)] text-[1.05rem] font-semibold tracking-[-0.01em] text-[var(--color-ink)]">
-          ChitranshTech
-        </span>
-      </Link>
+    <>
+      <nav className="fixed top-0 left-0 right-0 z-[100] flex items-center justify-between px-4 md:px-6 lg:px-12 h-[60px] bg-[rgba(245,242,236,0.88)] backdrop-blur-[16px] border-b border-[rgba(26,23,20,0.06)]">
+        <Link href="/" className="flex items-center gap-2.5 no-underline">
+          <Image src="/logo.png" alt="ChitranshTech" width={30} height={30} className="w-[30px] h-[30px] object-contain" />
+          <span className="font-[var(--font-serif)] text-[1.05rem] font-semibold tracking-[-0.01em] text-[var(--color-ink)]">
+            ChitranshTech
+          </span>
+        </Link>
 
-      <ul className="hidden md:flex items-center gap-10 absolute left-1/2 -translate-x-1/2">
-        <li><Link href="/jobs" className="text-[0.85rem] text-[var(--color-ink3)] hover:text-[var(--color-ink)] transition-colors">Find Jobs</Link></li>
-        <li><Link href="/resume/build" className="text-[0.85rem] text-[var(--color-ink3)] hover:text-[var(--color-ink)] transition-colors">Build ATS CV</Link></li>
-        {user && user.role_id === 2 && (
-          <li><Link href="/dashboard" className="text-[0.85rem] text-[var(--color-ink3)] hover:text-[var(--color-ink)] transition-colors">Post a Job</Link></li>
-        )}
-        <li><Link href="/feed" className="text-[0.85rem] text-[var(--color-ink3)] hover:text-[var(--color-ink)] transition-colors">Feed</Link></li>
-      </ul>
+        <ul className="hidden md:flex items-center gap-10 absolute left-1/2 -translate-x-1/2">
+          <li><Link href="/jobs" className="text-[0.85rem] text-[var(--color-ink3)] hover:text-[var(--color-ink)] transition-colors">Find Jobs</Link></li>
+          <li><Link href="/resume/build" className="text-[0.85rem] text-[var(--color-ink3)] hover:text-[var(--color-ink)] transition-colors">Build ATS CV</Link></li>
+          {user && user.role_id === 2 && (
+            <li><Link href="/dashboard" className="text-[0.85rem] text-[var(--color-ink3)] hover:text-[var(--color-ink)] transition-colors">Post a Job</Link></li>
+          )}
+          <li><Link href="/feed" className="text-[0.85rem] text-[var(--color-ink3)] hover:text-[var(--color-ink)] transition-colors">Feed</Link></li>
+        </ul>
 
-      <div className="flex items-center gap-3">
-        {user ? (
-          <>
-            <Link href="/dashboard" className="text-[0.85rem] font-medium text-[var(--color-cream)] bg-[var(--color-ink)] px-5 py-[0.45rem] rounded-full hover:bg-[var(--color-ink2)] transition-all hover:-translate-y-[1px]">
-              Dashboard
-            </Link>
-            <button
-              onClick={() => { useAuthStore.getState().logout(); window.location.href = "/"; }}
-              className="text-[0.85rem] text-[var(--color-ink3)] px-3 py-1.5 rounded-[10px] hover:bg-[var(--color-cream2)] hover:text-[var(--color-ink)] transition-colors"
-            >
-              Sign Out
-            </button>
-          </>
-        ) : (
-          <>
-            <Link href="/login" className="text-[0.85rem] text-[var(--color-ink2)] px-3 py-1.5 rounded-[10px] hover:bg-[var(--color-cream2)] transition-colors">
-              Sign In
-            </Link>
-            <Link href="/signup" className="text-[0.85rem] font-medium text-[var(--color-cream)] bg-[var(--color-ink)] px-5 py-[0.45rem] rounded-full hover:bg-[var(--color-ink2)] transition-all hover:-translate-y-[1px]">
-              Sign Up
-            </Link>
-          </>
-        )}
-      </div>
-    </nav>
+        {/* Desktop right */}
+        <div className="hidden md:flex items-center gap-3">
+          {user ? (
+            <>
+              <Link href="/dashboard" className="text-[0.85rem] font-medium text-[var(--color-cream)] bg-[var(--color-ink)] px-5 py-[0.45rem] rounded-full hover:bg-[var(--color-ink2)] transition-all hover:-translate-y-[1px]">
+                Dashboard
+              </Link>
+              <button onClick={() => { useAuthStore.getState().logout(); window.location.href = "/"; }} className="text-[0.85rem] text-[var(--color-ink3)] px-3 py-1.5 rounded-[10px] hover:bg-[var(--color-cream2)] hover:text-[var(--color-ink)] transition-colors">
+                Sign Out
+              </button>
+            </>
+          ) : (
+            <>
+              <Link href="/login" className="text-[0.85rem] text-[var(--color-ink2)] px-3 py-1.5 rounded-[10px] hover:bg-[var(--color-cream2)] transition-colors">Sign In</Link>
+              <Link href="/signup" className="text-[0.85rem] font-medium text-[var(--color-cream)] bg-[var(--color-ink)] px-5 py-[0.45rem] rounded-full hover:bg-[var(--color-ink2)] transition-all hover:-translate-y-[1px]">Sign Up</Link>
+            </>
+          )}
+        </div>
+
+        {/* Mobile hamburger */}
+        <button onClick={() => setMobileOpen(!mobileOpen)} className="md:hidden w-9 h-9 flex flex-col items-center justify-center gap-[5px] rounded-[8px] hover:bg-[var(--color-cream2)] transition-colors">
+          <span className="w-[18px] h-[2px] bg-[var(--color-ink)] rounded-full" />
+          <span className="w-[18px] h-[2px] bg-[var(--color-ink)] rounded-full" />
+          <span className="w-[18px] h-[2px] bg-[var(--color-ink)] rounded-full" />
+        </button>
+      </nav>
+
+      {/* Mobile menu overlay */}
+      {mobileOpen && (
+        <div className="fixed inset-0 z-[200] md:hidden">
+          <div className="absolute inset-0 bg-black/30" onClick={() => setMobileOpen(false)} />
+          <div className="absolute top-0 right-0 w-[280px] h-full bg-[var(--color-cream)] border-l border-[rgba(26,23,20,0.1)] p-6 shadow-xl">
+            <button onClick={() => setMobileOpen(false)} className="absolute top-4 right-4 text-[1.2rem] text-[var(--color-ink3)]">✕</button>
+            <div className="mt-10 space-y-2">
+              <Link href="/jobs" onClick={() => setMobileOpen(false)} className="block px-4 py-3 text-[0.9rem] text-[var(--color-ink)] rounded-[10px] hover:bg-[var(--color-cream2)]">Find Jobs</Link>
+              <Link href="/feed" onClick={() => setMobileOpen(false)} className="block px-4 py-3 text-[0.9rem] text-[var(--color-ink)] rounded-[10px] hover:bg-[var(--color-cream2)]">Feed</Link>
+              <Link href="/network" onClick={() => setMobileOpen(false)} className="block px-4 py-3 text-[0.9rem] text-[var(--color-ink)] rounded-[10px] hover:bg-[var(--color-cream2)]">Network</Link>
+              <Link href="/resume/build" onClick={() => setMobileOpen(false)} className="block px-4 py-3 text-[0.9rem] text-[var(--color-ink)] rounded-[10px] hover:bg-[var(--color-cream2)]">Build ATS CV</Link>
+              <Link href="/groups" onClick={() => setMobileOpen(false)} className="block px-4 py-3 text-[0.9rem] text-[var(--color-ink)] rounded-[10px] hover:bg-[var(--color-cream2)]">Groups</Link>
+              {user && user.role_id === 2 && (
+                <Link href="/dashboard" onClick={() => setMobileOpen(false)} className="block px-4 py-3 text-[0.9rem] text-[var(--color-ink)] rounded-[10px] hover:bg-[var(--color-cream2)]">Post a Job</Link>
+              )}
+              <div className="border-t border-[rgba(26,23,20,0.08)] my-3" />
+              {user ? (
+                <>
+                  <Link href="/dashboard" onClick={() => setMobileOpen(false)} className="block px-4 py-3 text-[0.9rem] font-medium text-[var(--color-ink)] rounded-[10px] hover:bg-[var(--color-cream2)]">Dashboard</Link>
+                  <Link href="/profile" onClick={() => setMobileOpen(false)} className="block px-4 py-3 text-[0.9rem] text-[var(--color-ink)] rounded-[10px] hover:bg-[var(--color-cream2)]">My Profile</Link>
+                  <button onClick={() => { useAuthStore.getState().logout(); window.location.href = "/"; }} className="block w-full text-left px-4 py-3 text-[0.9rem] text-[var(--color-warm)] rounded-[10px] hover:bg-[rgba(232,128,58,0.08)]">Sign Out</button>
+                </>
+              ) : (
+                <>
+                  <Link href="/login" onClick={() => setMobileOpen(false)} className="block px-4 py-3 text-[0.9rem] text-[var(--color-ink)] rounded-[10px] hover:bg-[var(--color-cream2)]">Sign In</Link>
+                  <Link href="/signup" onClick={() => setMobileOpen(false)} className="block px-4 py-3 text-[0.9rem] font-medium text-[var(--color-cream)] bg-[var(--color-ink)] rounded-[10px] text-center">Sign Up</Link>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 
