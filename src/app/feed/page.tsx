@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useEffect, useState, useRef } from "react";
 import { useAuthStore, useAuthHydration } from "@/modules/auth/store";
 import { feedApi } from "@/modules/feed/api";
+import { api } from "@/lib/api";
 import type { FeedPost, Comment } from "@/modules/feed/api";
 import { toast } from "sonner";
 
@@ -300,6 +301,8 @@ function PostCard({ post, onUpdate }: { post: FeedPost; onUpdate: () => void }) 
   const [likeCount, setLikeCount] = useState(post.like_count);
   const [isLiked, setIsLiked] = useState(post.is_liked);
 
+  const isGroupPost = post.post_type === "GROUP_POST";
+
   const formatDate = () => {
     const d = new Date(post.created_at);
     return d.toLocaleDateString("en-IN", { month: "short", day: "numeric" }) + ", " + d.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" });
@@ -308,7 +311,11 @@ function PostCard({ post, onUpdate }: { post: FeedPost; onUpdate: () => void }) 
   const handleLike = async () => {
     if (!user) { toast.error("Please sign in to like"); return; }
     try {
-      await feedApi.toggleLike(post.id);
+      if (isGroupPost) {
+        await api.post(`/groups/posts/${post.id}/like`);
+      } else {
+        await feedApi.toggleLike(post.id);
+      }
       setIsLiked(!isLiked);
       setLikeCount(isLiked ? likeCount - 1 : likeCount + 1);
     } catch { /* ignore */ }
@@ -317,8 +324,13 @@ function PostCard({ post, onUpdate }: { post: FeedPost; onUpdate: () => void }) 
   const handleToggleComments = async () => {
     if (!showComments) {
       try {
-        const res = await feedApi.getComments(post.id);
-        setComments(res);
+        if (isGroupPost) {
+          const res = await api.get(`/groups/posts/${post.id}/comments`);
+          setComments(res.data);
+        } else {
+          const res = await feedApi.getComments(post.id);
+          setComments(res);
+        }
       } catch { /* ignore */ }
     }
     setShowComments(!showComments);
@@ -327,11 +339,28 @@ function PostCard({ post, onUpdate }: { post: FeedPost; onUpdate: () => void }) 
   const handleAddComment = async () => {
     if (!newComment.trim() || !user) return;
     try {
-      const comment = await feedApi.addComment(post.id, newComment);
+      let comment;
+      if (isGroupPost) {
+        const res = await api.post(`/groups/posts/${post.id}/comments`, { comment_text: newComment });
+        comment = res.data;
+      } else {
+        comment = await feedApi.addComment(post.id, newComment);
+      }
       setComments([...comments, comment]);
       setNewComment("");
     } catch (err: any) {
-      toast.error(err.response?.data?.detail || "Failed to comment");
+      const detail = err.response?.data?.detail;
+      toast.error(typeof detail === "string" ? detail : "Failed to comment");
+    }
+  };
+
+  const handleShare = async () => {
+    const url = `${window.location.origin}/feed`;
+    if (navigator.share) {
+      try { await navigator.share({ title: post.title || "Post", text: post.content?.slice(0, 100) || "", url }); } catch { /* cancelled */ }
+    } else {
+      await navigator.clipboard.writeText(url);
+      toast.success("Link copied to clipboard!");
     }
   };
 
@@ -350,6 +379,9 @@ function PostCard({ post, onUpdate }: { post: FeedPost; onUpdate: () => void }) 
           </div>
           {post.post_type === "JOB_POST" && (
             <span className="text-[0.65rem] px-2 py-0.5 rounded bg-[rgba(200,230,60,0.2)] text-[var(--color-lime-dk)] font-medium">JOB</span>
+          )}
+          {post.post_type === "GROUP_POST" && (
+            <span className="text-[0.65rem] px-2 py-0.5 rounded bg-[rgba(44,110,106,0.1)] text-[var(--color-teal)] font-medium">GROUP</span>
           )}
         </div>
 
@@ -385,9 +417,12 @@ function PostCard({ post, onUpdate }: { post: FeedPost; onUpdate: () => void }) 
         <button onClick={handleToggleComments} className="flex-1 flex items-center justify-center gap-2 py-2 rounded-[8px] text-[0.82rem] font-medium text-[var(--color-ink3)] hover:bg-[var(--color-cream2)] transition-all">
           💬 Comment
         </button>
+        <button onClick={handleShare} className="flex-1 flex items-center justify-center gap-2 py-2 rounded-[8px] text-[0.82rem] font-medium text-[var(--color-ink3)] hover:bg-[var(--color-cream2)] transition-all">
+          🔗 Share
+        </button>
         {post.external_link && post.post_type === "JOB_POST" && (
           <Link href={post.external_link} className="flex-1 flex items-center justify-center gap-2 py-2 rounded-[8px] text-[0.82rem] font-medium text-[var(--color-teal)] hover:bg-[rgba(44,110,106,0.05)] transition-all">
-            🔗 View Job
+            📋 View Job
           </Link>
         )}
       </div>
