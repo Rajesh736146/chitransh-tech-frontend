@@ -1,490 +1,446 @@
 "use client";
 
-import Navbar from "@/components/Navbar";
-import { useState, useEffect, useCallback } from "react";
-import { useAuthStore } from "@/modules/auth/store";
+import Link from "next/link";
+import Image from "next/image";
+import { useEffect, useState, useRef } from "react";
+import { useAuthStore, useAuthHydration } from "@/modules/auth/store";
 import { feedApi } from "@/modules/feed/api";
-import type { FeedPost, Comment } from "@/modules/feed/types";
+import type { FeedPost, Comment } from "@/modules/feed/api";
 import { toast } from "sonner";
 
-function PostCard({
-  post,
-  currentUserId,
-  onLike,
-  onDelete,
-  onEdit,
-  onCommentAdded,
-}: {
-  post: FeedPost;
-  currentUserId: string | null;
-  onLike: (id: string) => void;
-  onDelete: (id: string) => void;
-  onEdit: (id: string, content: string) => void;
-  onCommentAdded: () => void;
-}) {
-  const [liked, setLiked] = useState(post.is_liked);
-  const [likes, setLikes] = useState(post.like_count);
-  const [showComment, setShowComment] = useState(false);
-  const [comments, setComments] = useState<Comment[]>([]);
-  const [commentText, setCommentText] = useState("");
-  const [loadingComments, setLoadingComments] = useState(false);
-  const [showEdit, setShowEdit] = useState(false);
-  const [editText, setEditText] = useState(post.content || "");
-  const [showActions, setShowActions] = useState(false);
+// ─── Trending topics (static for now) ─────────────────────────────────────────
+const TRENDING = [
+  { tag: "#OpenToWork", posts: "6800 posts" },
+  { tag: "#TechJobs", posts: "5600 posts" },
+  { tag: "#ProductManagement", posts: "4400 posts" },
+  { tag: "#AIResume", posts: "3200 posts" },
+  { tag: "#StartupHiring", posts: "2000 posts" },
+];
 
-  const handleLike = async () => {
-    const prevLiked = liked;
-    const prevCount = likes;
-    setLiked(!liked);
-    setLikes(liked ? likes - 1 : likes + 1);
+const QUICK_LINKS = [
+  { label: "Find Jobs", href: "/jobs" },
+  { label: "Applied Jobs", href: "/dashboard" },
+  { label: "My Resume", href: "/resume/build" },
+  { label: "My Profile", href: "/dashboard" },
+];
+
+export default function FeedPage() {
+  useAuthHydration();
+  const { user, logout } = useAuthStore();
+  const [posts, setPosts] = useState<FeedPost[]>([]);
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const loadFeed = async (p = 1) => {
+    setIsLoading(p === 1);
     try {
-      await onLike(post.id);
-    } catch {
-      setLiked(prevLiked);
-      setLikes(prevCount);
-    }
+      const res = await feedApi.listFeed(p, 15);
+      if (p === 1) setPosts(res.items);
+      else setPosts((prev) => [...prev, ...res.items]);
+      setTotal(res.total);
+      setPage(p);
+    } catch { /* ignore */ }
+    finally { setIsLoading(false); }
   };
 
-  const handleToggleComments = async () => {
-    if (!showComment && comments.length === 0) {
-      setLoadingComments(true);
-      try {
-        const data = await feedApi.getComments(post.id);
-        setComments(data);
-      } catch {
-        toast.error("Failed to load comments");
-      } finally {
-        setLoadingComments(false);
-      }
-    }
-    setShowComment(!showComment);
-  };
-
-  const handleAddComment = async () => {
-    if (!commentText.trim()) return;
-    const text = commentText;
-    setCommentText("");
-    try {
-      await feedApi.addComment(post.id, { comment_text: text });
-      const data = await feedApi.getComments(post.id);
-      setComments(data);
-      onCommentAdded();
-    } catch {
-      toast.error("Failed to add comment");
-      setCommentText(text);
-    }
-  };
-
-  const handleEdit = async () => {
-    if (!editText.trim()) return;
-    try {
-      await feedApi.updatePost(post.id, { content: editText });
-      setShowEdit(false);
-      toast.success("Post updated");
-    } catch {
-      toast.error("Failed to update post");
-    }
-  };
-
-  const handleDeleteComment = async (commentId: string) => {
-    try {
-      await feedApi.deleteComment(post.id, commentId);
-      setComments(comments.filter((c) => c.id !== commentId));
-    } catch {
-      toast.error("Failed to delete comment");
-    }
-  };
-
-  const isOwner = currentUserId && post.author_id === currentUserId;
+  useEffect(() => { loadFeed(); }, []);
 
   return (
-    <div className="bg-white border border-gray-200 rounded-xl p-5">
-      <div className="flex items-start gap-3 mb-3">
-        <div className="w-9 h-9 rounded-full bg-gray-900 text-white flex items-center justify-center text-sm font-semibold shrink-0">
-          {(post.author_name || "?")[0].toUpperCase()}
+    <div className="min-h-screen bg-[var(--color-cream)]">
+      {/* Nav */}
+      <nav className="sticky top-0 z-[100] flex items-center justify-between px-6 lg:px-12 h-[60px] bg-[rgba(245,242,236,0.88)] backdrop-blur-[16px] border-b border-[rgba(26,23,20,0.06)]">
+        <Link href="/" className="flex items-center gap-2.5">
+          <Image src="/logo.png" alt="ChitranshTech" width={30} height={30} className="w-[30px] h-[30px] object-contain" />
+          <span className="font-[var(--font-serif)] text-[1.05rem] font-semibold tracking-[-0.01em] text-[var(--color-ink)]">ChitranshTech</span>
+        </Link>
+
+        <ul className="hidden md:flex items-center gap-10 absolute left-1/2 -translate-x-1/2">
+          <li><Link href="/jobs" className="text-[0.85rem] text-[var(--color-ink3)] hover:text-[var(--color-ink)] transition-colors">Find Jobs</Link></li>
+          <li><Link href="/feed" className="text-[0.85rem] text-[var(--color-ink)] font-medium border-b-2 border-[var(--color-ink)] pb-0.5">Feed</Link></li>
+          <li><Link href="/network" className="text-[0.85rem] text-[var(--color-ink3)] hover:text-[var(--color-ink)] transition-colors">Network</Link></li>
+          <li><Link href="/resume/build" className="text-[0.85rem] text-[var(--color-ink3)] hover:text-[var(--color-ink)] transition-colors">Build ATS CV</Link></li>
+        </ul>
+
+        <div className="flex items-center gap-3">
+          {user ? (
+            <>
+              <Link href="/dashboard" className="text-[0.85rem] text-[var(--color-ink3)] hover:text-[var(--color-ink)] transition-colors">Dashboard</Link>
+              <button onClick={() => { logout(); window.location.href = "/"; }} className="text-[0.85rem] text-[var(--color-warm)] px-3 py-1.5 rounded-[10px] hover:bg-[rgba(232,128,58,0.08)] transition-colors">
+                Sign Out
+              </button>
+            </>
+          ) : (
+            <Link href="/login" className="text-[0.85rem] font-medium text-[var(--color-cream)] bg-[var(--color-ink)] px-5 py-[0.45rem] rounded-full hover:bg-[var(--color-ink2)] transition-all">
+              Sign In
+            </Link>
+          )}
         </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold">{post.author_name || "Unknown"}</p>
-          <p className="text-xs text-gray-500 truncate">{post.author_email}</p>
-          <p className="text-xs text-gray-400">
-            {new Date(post.created_at).toLocaleDateString("en-US", {
-              month: "short",
-              day: "numeric",
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
-            {post.post_type === "JOB_POST" && (
-              <span className="ml-2 text-blue-600 font-medium">Job Post</span>
-            )}
-          </p>
-        </div>
-        {isOwner && (
-          <div className="relative">
-            <button
-              onClick={() => setShowActions(!showActions)}
-              className="text-xs text-gray-400 hover:text-gray-600 px-1"
-            >
-              ⋯
-            </button>
-            {showActions && (
-              <div className="absolute right-0 top-5 bg-white border border-gray-200 rounded-lg shadow-lg z-10 w-28 text-xs">
-                <button
-                  onClick={() => { setShowEdit(true); setShowActions(false); }}
-                  className="block w-full text-left px-3 py-2 hover:bg-gray-50"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => { onDelete(post.id); setShowActions(false); }}
-                  className="block w-full text-left px-3 py-2 hover:bg-red-50 text-red-600"
-                >
-                  Delete
-                </button>
+      </nav>
+
+      {/* Main layout: 3 columns */}
+      <div className="max-w-[1200px] mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-[240px_1fr_280px] gap-6">
+        {/* Left sidebar */}
+        <aside className="hidden lg:block">
+          <div className="bg-white border border-[rgba(26,23,20,0.06)] rounded-[14px] p-5 mb-4">
+            <div className="flex flex-col items-center text-center mb-4">
+              <div className="w-16 h-16 rounded-full bg-[var(--color-cream2)] flex items-center justify-center font-[var(--font-serif)] text-[1.3rem] font-semibold text-[var(--color-ink2)] mb-2">
+                {user ? user.full_name?.[0]?.toUpperCase() : "?"}
               </div>
-            )}
+              <h3 className="text-[0.9rem] font-medium text-[var(--color-ink)]">{user ? user.full_name : "Guest"}</h3>
+              <p className="text-[0.75rem] text-[var(--color-ink4)]">{user ? user.email : "Sign in to continue"}</p>
+            </div>
           </div>
-        )}
-      </div>
 
-      {post.title && (
-        <p className="text-sm font-semibold text-gray-900 mb-1">{post.title}</p>
-      )}
-
-      {showEdit ? (
-        <div className="mb-3">
-          <textarea
-            value={editText}
-            onChange={(e) => setEditText(e.target.value)}
-            rows={3}
-            className="w-full text-sm border border-gray-200 rounded-xl px-3 py-2 resize-none focus:outline-none focus:ring-1 focus:ring-black"
-          />
-          <div className="flex gap-2 mt-1">
-            <button
-              onClick={handleEdit}
-              className="text-xs bg-black text-white px-3 py-1 rounded-lg hover:bg-gray-800"
-            >
-              Save
-            </button>
-            <button
-              onClick={() => { setShowEdit(false); setEditText(post.content || ""); }}
-              className="text-xs text-gray-500 px-3 py-1 hover:text-gray-700"
-            >
-              Cancel
-            </button>
+          <div className="bg-white border border-[rgba(26,23,20,0.06)] rounded-[14px] p-4">
+            <h4 className="text-[0.72rem] text-[var(--color-ink4)] uppercase tracking-[0.08em] font-medium mb-3">Quick Links</h4>
+            <div className="space-y-1">
+              {QUICK_LINKS.map((link) => (
+                <Link key={link.label} href={link.href} className="block text-[0.85rem] text-[var(--color-ink2)] py-1.5 hover:text-[var(--color-teal)] transition-colors">
+                  {link.label}
+                </Link>
+              ))}
+            </div>
           </div>
-        </div>
-      ) : (
-        <p className="text-sm text-gray-700 leading-relaxed mb-3 whitespace-pre-wrap">
-          {post.content}
-        </p>
-      )}
+        </aside>
 
-      <div className="flex items-center justify-between text-xs text-gray-400 pb-2 border-b border-gray-100 mb-2">
-        <span>{likes} likes</span>
-        <span>{post.comment_count} comments</span>
-      </div>
+        {/* Center feed */}
+        <main className="min-w-0">
+          {/* Create post */}
+          {user && <CreatePostCard onCreated={() => loadFeed(1)} />}
 
-      <div className="flex items-center gap-1">
-        <button
-          onClick={handleLike}
-          className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-            liked ? "text-blue-600 bg-blue-50" : "text-gray-500 hover:bg-gray-50"
-          }`}
-        >
-          👍 {liked ? "Liked" : "Like"}
-        </button>
-        <button
-          onClick={handleToggleComments}
-          className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium text-gray-500 hover:bg-gray-50 transition-colors"
-        >
-          💬 Comment
-        </button>
-        {post.external_link && (
-          <a
-            href={post.external_link}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium text-blue-600 hover:bg-blue-50 transition-colors"
-          >
-            🔗 View Job
-          </a>
-        )}
-      </div>
-
-      {showComment && (
-        <div className="mt-3 space-y-3">
-          {loadingComments ? (
-            <p className="text-xs text-gray-400">Loading comments...</p>
-          ) : comments.length > 0 ? (
-            <div className="space-y-2 max-h-48 overflow-y-auto">
-              {comments.map((c) => (
-                <div key={c.id} className="flex items-start gap-2 text-xs">
-                  <div className="w-5 h-5 rounded-full bg-gray-300 text-white flex items-center justify-center text-[10px] font-semibold shrink-0">
-                    {(c.author_name || "?")[0].toUpperCase()}
+          {/* Posts */}
+          {isLoading ? (
+            <div className="space-y-4">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="bg-white border border-[rgba(26,23,20,0.06)] rounded-[14px] p-5 animate-pulse">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 rounded-full bg-[var(--color-cream2)]" />
+                    <div><div className="h-3 w-28 bg-[var(--color-cream2)] rounded" /><div className="h-2 w-20 bg-[var(--color-cream2)] rounded mt-1.5" /></div>
                   </div>
-                  <div className="flex-1">
-                    <span className="font-semibold text-gray-700">{c.author_name} </span>
-                    <span className="text-gray-600">{c.comment_text}</span>
-                    <div className="text-gray-400 mt-0.5">
-                      {new Date(c.created_at).toLocaleDateString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </div>
-                  </div>
-                  {currentUserId === c.user_id && (
-                    <button
-                      onClick={() => handleDeleteComment(c.id)}
-                      className="text-red-400 hover:text-red-600"
-                    >
-                      ✕
-                    </button>
-                  )}
+                  <div className="h-3 w-full bg-[var(--color-cream2)] rounded mb-2" />
+                  <div className="h-3 w-2/3 bg-[var(--color-cream2)] rounded" />
                 </div>
               ))}
             </div>
+          ) : posts.length > 0 ? (
+            <div className="space-y-4">
+              {posts.map((post) => (
+                <PostCard key={post.id} post={post} onUpdate={() => loadFeed(1)} />
+              ))}
+            </div>
           ) : (
-            <p className="text-xs text-gray-400">No comments yet</p>
+            <div className="bg-white border border-[rgba(26,23,20,0.06)] rounded-[14px] p-10 text-center">
+              <p className="text-[2rem] mb-3">📰</p>
+              <h3 className="font-[var(--font-serif)] text-[1.1rem] font-medium text-[var(--color-ink)] mb-2">No posts yet</h3>
+              <p className="text-[0.85rem] text-[var(--color-ink4)]">Be the first to share something!</p>
+            </div>
           )}
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={commentText}
-              onChange={(e) => setCommentText(e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter") handleAddComment(); }}
-              placeholder="Write a comment…"
-              className="flex-1 text-xs px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-black"
-            />
-            <button
-              onClick={handleAddComment}
-              disabled={!commentText.trim()}
-              className="text-xs bg-black text-white px-3 py-2 rounded-lg hover:bg-gray-800 disabled:opacity-40 transition-colors"
-            >
-              Post
-            </button>
+
+          {/* Load more */}
+          {posts.length < total && (
+            <div className="text-center mt-6">
+              <button onClick={() => loadFeed(page + 1)} className="px-6 py-2.5 bg-white border border-[rgba(26,23,20,0.08)] rounded-full text-[0.82rem] text-[var(--color-ink3)] hover:text-[var(--color-ink)] hover:border-[var(--color-ink3)] transition-all">
+                Load More Posts
+              </button>
+            </div>
+          )}
+        </main>
+
+        {/* Right sidebar */}
+        <aside className="hidden lg:block">
+          {/* Trending */}
+          <div className="bg-white border border-[rgba(26,23,20,0.06)] rounded-[14px] p-5 mb-4">
+            <h4 className="text-[0.75rem] text-[var(--color-ink4)] uppercase tracking-[0.08em] font-medium mb-4">Trending</h4>
+            <div className="space-y-3">
+              {TRENDING.map((t) => (
+                <div key={t.tag}>
+                  <p className="text-[0.88rem] font-medium text-[var(--color-ink)]">{t.tag}</p>
+                  <p className="text-[0.72rem] text-[var(--color-ink4)]">{t.posts}</p>
+                </div>
+              ))}
+            </div>
           </div>
+
+          {/* People to follow (placeholder) */}
+          <div className="bg-white border border-[rgba(26,23,20,0.06)] rounded-[14px] p-5">
+            <h4 className="text-[0.75rem] text-[var(--color-ink4)] uppercase tracking-[0.08em] font-medium mb-4">People to Follow</h4>
+            <div className="space-y-3">
+              {[
+                { name: "Kunal Shah", role: "Founder, CRED", color: "bg-[rgba(200,230,60,0.3)] text-[#8CAF00]" },
+                { name: "Deepinder Goyal", role: "CEO, Zomato", color: "bg-[rgba(59,130,246,0.1)] text-[#1D4ED8]" },
+                { name: "Nikhil Kamath", role: "Co-founder, Zerodha", color: "bg-[rgba(44,110,106,0.12)] text-[#1A4D4A]" },
+              ].map((p) => (
+                <div key={p.name} className="flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-[0.65rem] font-semibold ${p.color}`}>
+                      {p.name[0]}
+                    </div>
+                    <div>
+                      <p className="text-[0.8rem] font-medium text-[var(--color-ink)]">{p.name}</p>
+                      <p className="text-[0.68rem] text-[var(--color-ink4)]">{p.role}</p>
+                    </div>
+                  </div>
+                  <button className="text-[0.72rem] text-[var(--color-teal)] font-medium hover:underline">Follow</button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  );
+}
+
+// ─── Create Post Card ─────────────────────────────────────────────────────────
+function CreatePostCard({ onCreated }: { onCreated: () => void }) {
+  const { user } = useAuthStore();
+  const [content, setContent] = useState("");
+  const [file, setFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
+  const [isPosting, setIsPosting] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const handleFileChange = (f: File | null) => {
+    setFile(f);
+    if (f && f.type.startsWith("image/")) {
+      const url = URL.createObjectURL(f);
+      setPreview(url);
+    } else {
+      setPreview(null);
+    }
+  };
+
+  const handlePost = async () => {
+    if (!content.trim()) return;
+    setIsPosting(true);
+    try {
+      const formData = new FormData();
+      formData.append("content", content);
+      if (file) formData.append("file", file);
+      await feedApi.createPost(formData);
+      toast.success("Post published!");
+      setContent("");
+      setFile(null);
+      setPreview(null);
+      setExpanded(false);
+      onCreated();
+    } catch (err: any) {
+      toast.error(err.response?.data?.detail || "Failed to create post");
+    } finally {
+      setIsPosting(false);
+    }
+  };
+
+  return (
+    <div className="bg-white border border-[rgba(26,23,20,0.06)] rounded-[14px] p-5 mb-4">
+      <div className="flex items-start gap-3">
+        <div className="w-10 h-10 rounded-full bg-[var(--color-ink)] flex items-center justify-center font-[var(--font-serif)] text-[0.85rem] font-semibold text-[var(--color-cream)] shrink-0">
+          {user?.full_name?.[0]?.toUpperCase() || "U"}
+        </div>
+        <div className="flex-1">
+          <textarea
+            value={content}
+            onChange={(e) => { setContent(e.target.value); if (!expanded) setExpanded(true); }}
+            onFocus={() => setExpanded(true)}
+            placeholder="What's on your mind? Share a thought, update, or opportunity..."
+            rows={expanded ? 4 : 2}
+            className="w-full bg-[var(--color-cream)] rounded-[10px] px-4 py-3 text-[0.88rem] text-[var(--color-ink)] placeholder:text-[var(--color-ink4)] focus:outline-none focus:ring-1 focus:ring-[var(--color-teal)] resize-none transition-all"
+          />
+        </div>
+      </div>
+
+      {/* Image preview */}
+      {preview && (
+        <div className="mt-3 ml-[52px] relative inline-block">
+          <img src={preview} alt="Preview" className="max-h-[200px] rounded-[10px] border border-[rgba(26,23,20,0.06)]" />
+          <button onClick={() => { setFile(null); setPreview(null); }} className="absolute top-2 right-2 w-6 h-6 bg-black/60 text-white rounded-full text-[0.7rem] flex items-center justify-center hover:bg-black/80">✕</button>
+        </div>
+      )}
+
+      {/* File name for non-image */}
+      {file && !preview && (
+        <div className="mt-2 ml-[52px] flex items-center gap-2 text-[0.8rem] text-[var(--color-ink3)]">
+          <span>📎 {file.name}</span>
+          <button onClick={() => setFile(null)} className="text-[var(--color-warm)] text-[0.75rem]">✕</button>
+        </div>
+      )}
+
+      {expanded && (
+        <div className="flex items-center justify-between mt-3 ml-[52px]">
+          <div className="flex items-center gap-1">
+            <button onClick={() => fileRef.current?.click()} className="flex items-center gap-1.5 text-[0.8rem] text-[var(--color-ink3)] px-3 py-1.5 rounded-[8px] hover:bg-[var(--color-cream2)] transition-colors">
+              🖼️ Photo
+            </button>
+            <button onClick={() => fileRef.current?.click()} className="flex items-center gap-1.5 text-[0.8rem] text-[var(--color-ink3)] px-3 py-1.5 rounded-[8px] hover:bg-[var(--color-cream2)] transition-colors">
+              🎥 Video
+            </button>
+            <input ref={fileRef} type="file" accept="image/*,video/*,.pdf" className="hidden" onChange={(e) => handleFileChange(e.target.files?.[0] || null)} />
+          </div>
+          <button
+            onClick={handlePost}
+            disabled={!content.trim() || isPosting}
+            className="px-5 py-2 bg-[var(--color-ink)] text-[var(--color-cream)] rounded-full text-[0.82rem] font-medium hover:bg-[var(--color-ink2)] disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+          >
+            {isPosting ? "Posting..." : "Post"}
+          </button>
         </div>
       )}
     </div>
   );
 }
 
-export default function FeedPage() {
+// ─── Post Card ────────────────────────────────────────────────────────────────
+function PostCard({ post, onUpdate }: { post: FeedPost; onUpdate: () => void }) {
   const { user } = useAuthStore();
-  const [posts, setPosts] = useState<FeedPost[]>([]);
-  const [total, setTotal] = useState(0);
-  const [page, setPage] = useState(1);
-  const [loading, setLoading] = useState(true);
-  const [postText, setPostText] = useState("");
+  const [showComments, setShowComments] = useState(false);
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [newComment, setNewComment] = useState("");
+  const [likeCount, setLikeCount] = useState(post.like_count);
+  const [isLiked, setIsLiked] = useState(post.is_liked);
 
-  const fetchFeed = useCallback(async (p = 1) => {
-    setLoading(true);
-    try {
-      const data = await feedApi.listFeed(p, 20);
-      setPosts(data.items);
-      setTotal(data.total);
-      setPage(data.page);
-    } catch {
-      toast.error("Failed to load feed");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchFeed();
-  }, [fetchFeed]);
-
-  const handleCreatePost = async () => {
-    if (!postText.trim()) return;
-    const text = postText;
-    setPostText("");
-    try {
-      await feedApi.createPost({ content: text });
-      toast.success("Post created!");
-      fetchFeed(1);
-    } catch {
-      toast.error("Failed to create post");
-      setPostText(text);
-    }
+  const formatDate = () => {
+    const d = new Date(post.created_at);
+    return d.toLocaleDateString("en-IN", { month: "short", day: "numeric" }) + ", " + d.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" });
   };
 
-  const handleLike = async (postId: string) => {
-    await feedApi.toggleLike(postId);
+  const handleLike = async () => {
+    if (!user) { toast.error("Please sign in to like"); return; }
+    try {
+      await feedApi.toggleLike(post.id);
+      setIsLiked(!isLiked);
+      setLikeCount(isLiked ? likeCount - 1 : likeCount + 1);
+    } catch { /* ignore */ }
   };
 
-  const handleDelete = async (postId: string) => {
+  const handleToggleComments = async () => {
+    if (!showComments) {
+      try {
+        const res = await feedApi.getComments(post.id);
+        setComments(res);
+      } catch { /* ignore */ }
+    }
+    setShowComments(!showComments);
+  };
+
+  const handleAddComment = async () => {
+    if (!newComment.trim() || !user) return;
     try {
-      await feedApi.deletePost(postId);
-      toast.success("Post deleted");
-      setPosts(posts.filter((p) => p.id !== postId));
-    } catch {
-      toast.error("Failed to delete post");
+      const comment = await feedApi.addComment(post.id, newComment);
+      setComments([...comments, comment]);
+      setNewComment("");
+    } catch (err: any) {
+      toast.error(err.response?.data?.detail || "Failed to comment");
     }
   };
-
-  const handleEdit = async (_postId: string, _content: string) => {
-    // handled inside PostCard
-  };
-
-  const handleCommentAdded = () => {
-    fetchFeed(page);
-  };
-
-  const totalPages = Math.ceil(total / 20);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Navbar />
-      <div className="max-w-5xl mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-
-          {/* Left sidebar */}
-          <aside className="hidden lg:block lg:col-span-3">
-            <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-              <div className="h-14 bg-gray-900" />
-              <div className="px-4 pb-4">
-                <div className="w-12 h-12 rounded-full bg-gray-900 text-white flex items-center justify-center text-base font-bold -mt-6 border-2 border-white">
-                  {user ? user.full_name[0].toUpperCase() : "?"}
-                </div>
-                <p className="font-semibold text-sm mt-2">{user?.full_name ?? "Guest"}</p>
-                <p className="text-xs text-gray-500">{user?.email ?? "Sign in to continue"}</p>
-              </div>
-            </div>
-
-            <div className="bg-white border border-gray-200 rounded-xl p-4 mt-4">
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Quick links</p>
-              {["Saved Jobs", "Applied Jobs", "My Resume", "Notifications"].map((item) => (
-                <button key={item} className="w-full text-left text-sm text-gray-600 hover:text-black py-1 transition-colors">
-                  {item}
-                </button>
-              ))}
-            </div>
-          </aside>
-
-          {/* Feed */}
-          <main className="lg:col-span-6 space-y-4">
-            {user && (
-              <div className="bg-white border border-gray-200 rounded-xl p-4">
-                <div className="flex gap-3">
-                  <div className="w-9 h-9 rounded-full bg-gray-900 text-white flex items-center justify-center text-sm font-semibold shrink-0">
-                    {user.full_name[0].toUpperCase()}
-                  </div>
-                  <textarea
-                    value={postText}
-                    onChange={(e) => setPostText(e.target.value)}
-                    placeholder="Share an update, insight, or opportunity…"
-                    rows={3}
-                    className="flex-1 text-sm border border-gray-200 rounded-xl px-3 py-2 resize-none focus:outline-none focus:ring-1 focus:ring-black"
-                  />
-                </div>
-                <div className="flex justify-end mt-2">
-                  <button
-                    onClick={handleCreatePost}
-                    disabled={!postText.trim()}
-                    className="text-xs bg-black text-white px-4 py-1.5 rounded-lg hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-                  >
-                    Post
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {loading ? (
-              <div className="space-y-4">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="bg-white border border-gray-200 rounded-xl p-5 animate-pulse">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="w-9 h-9 rounded-full bg-gray-200" />
-                      <div className="flex-1">
-                        <div className="h-3 bg-gray-200 rounded w-1/3 mb-1" />
-                        <div className="h-2 bg-gray-100 rounded w-1/4" />
-                      </div>
-                    </div>
-                    <div className="h-4 bg-gray-200 rounded w-full mb-2" />
-                    <div className="h-4 bg-gray-200 rounded w-2/3" />
-                  </div>
-                ))}
-              </div>
-            ) : posts.length === 0 ? (
-              <div className="text-center py-16">
-                <p className="text-gray-400 text-sm">No posts yet. Be the first to share!</p>
-              </div>
-            ) : (
-              posts.map((post) => (
-                <PostCard
-                  key={post.id}
-                  post={post}
-                  currentUserId={user?.id ?? null}
-                  onLike={handleLike}
-                  onDelete={handleDelete}
-                  onEdit={handleEdit}
-                  onCommentAdded={handleCommentAdded}
-                />
-              ))
-            )}
-
-            {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="flex items-center justify-center gap-2 pt-4">
-                <button
-                  onClick={() => fetchFeed(page - 1)}
-                  disabled={page <= 1}
-                  className="text-xs px-3 py-1.5 border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-30"
-                >
-                  ← Prev
-                </button>
-                <span className="text-xs text-gray-500">
-                  Page {page} of {totalPages}
-                </span>
-                <button
-                  onClick={() => fetchFeed(page + 1)}
-                  disabled={page >= totalPages}
-                  className="text-xs px-3 py-1.5 border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-30"
-                >
-                  Next →
-                </button>
-              </div>
-            )}
-          </main>
-
-          {/* Right sidebar */}
-          <aside className="hidden lg:block lg:col-span-3 space-y-4">
-            <div className="bg-white border border-gray-200 rounded-xl p-4">
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Trending</p>
-              {["#OpenToWork", "#TechJobs", "#ProductManagement", "#AIResume", "#StartupHiring"].map((tag, i) => (
-                <div key={tag} className="mb-2">
-                  <p className="text-sm font-medium text-gray-800">{tag}</p>
-                  <p className="text-xs text-gray-400">{(5 - i) * 1200 + 800} posts</p>
-                </div>
-              ))}
-            </div>
-
-            <div className="bg-white border border-gray-200 rounded-xl p-4">
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">People to follow</p>
-              {[
-                { name: "Kunal Shah", role: "Founder, CRED", avatar: "K" },
-                { name: "Deepinder Goyal", role: "CEO, Zomato", avatar: "D" },
-                { name: "Nikhil Kamath", role: "Co-founder, Zerodha", avatar: "N" },
-              ].map((p) => (
-                <div key={p.name} className="flex items-center gap-2 mb-3">
-                  <div className="w-8 h-8 rounded-full bg-gray-800 text-white flex items-center justify-center text-xs font-bold shrink-0">
-                    {p.avatar}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-medium truncate">{p.name}</p>
-                    <p className="text-xs text-gray-400 truncate">{p.role}</p>
-                  </div>
-                  <button className="text-xs text-blue-600 hover:underline shrink-0">Follow</button>
-                </div>
-              ))}
-            </div>
-          </aside>
-
+    <div className="bg-white border border-[rgba(26,23,20,0.06)] rounded-[14px] overflow-hidden">
+      {/* Header */}
+      <div className="p-5 pb-0">
+        <div className="flex items-start gap-3 mb-3">
+          <div className="w-10 h-10 rounded-full bg-[var(--color-ink)] flex items-center justify-center font-[var(--font-serif)] text-[0.85rem] font-semibold text-[var(--color-cream)] shrink-0">
+            {post.author_name?.[0]?.toUpperCase() || "U"}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-[0.9rem] font-medium text-[var(--color-ink)]">{post.author_name || "User"}</p>
+            <p className="text-[0.72rem] text-[var(--color-ink4)]">{post.author_email}</p>
+            <p className="text-[0.7rem] text-[var(--color-ink4)]">{formatDate()}</p>
+          </div>
+          {post.post_type === "JOB_POST" && (
+            <span className="text-[0.65rem] px-2 py-0.5 rounded bg-[rgba(200,230,60,0.2)] text-[var(--color-lime-dk)] font-medium">JOB</span>
+          )}
         </div>
+
+        {/* Title */}
+        {post.title && (
+          <h3 className="text-[0.95rem] font-semibold text-[var(--color-ink)] mb-1">{post.title}</h3>
+        )}
+
+        {/* Content */}
+        {post.content && (
+          <p className="text-[0.88rem] text-[var(--color-ink2)] leading-[1.7] whitespace-pre-wrap mb-3">{post.content}</p>
+        )}
+
+        {/* Media */}
+        {post.media_url && (
+          <div className="mb-3 -mx-5">
+            <img src={post.media_url} alt="" className="w-full max-h-[450px] object-cover" />
+          </div>
+        )}
       </div>
+
+      {/* Stats row */}
+      <div className="px-5 py-2 flex items-center justify-between text-[0.75rem] text-[var(--color-ink4)]">
+        <span>{likeCount} likes</span>
+        <span>{post.comment_count} comments</span>
+      </div>
+
+      {/* Actions */}
+      <div className="px-5 py-2 border-t border-[rgba(26,23,20,0.06)] flex items-center gap-1">
+        <button onClick={handleLike} className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-[8px] text-[0.82rem] font-medium transition-all ${isLiked ? "text-[var(--color-warm)]" : "text-[var(--color-ink3)] hover:bg-[var(--color-cream2)]"}`}>
+          {isLiked ? "🔥" : "👍"} Like
+        </button>
+        <button onClick={handleToggleComments} className="flex-1 flex items-center justify-center gap-2 py-2 rounded-[8px] text-[0.82rem] font-medium text-[var(--color-ink3)] hover:bg-[var(--color-cream2)] transition-all">
+          💬 Comment
+        </button>
+        {post.external_link && post.post_type === "JOB_POST" && (
+          <Link href={post.external_link} className="flex-1 flex items-center justify-center gap-2 py-2 rounded-[8px] text-[0.82rem] font-medium text-[var(--color-teal)] hover:bg-[rgba(44,110,106,0.05)] transition-all">
+            🔗 View Job
+          </Link>
+        )}
+      </div>
+
+      {/* Comments */}
+      {showComments && (
+        <div className="px-5 pb-4 border-t border-[rgba(26,23,20,0.04)]">
+          {comments.length > 0 && (
+            <div className="space-y-3 py-3">
+              {comments.map((c) => (
+                <div key={c.id} className="flex gap-2.5">
+                  <div className="w-7 h-7 rounded-full bg-[var(--color-cream2)] flex items-center justify-center text-[0.6rem] font-semibold text-[var(--color-ink3)] shrink-0">
+                    {c.author_name?.[0]?.toUpperCase() || "U"}
+                  </div>
+                  <div className="bg-[var(--color-cream)] rounded-[10px] px-3 py-2 flex-1">
+                    <p className="text-[0.78rem] font-medium text-[var(--color-ink)]">{c.author_name || "User"}</p>
+                    <p className="text-[0.82rem] text-[var(--color-ink2)] leading-[1.5]">{c.comment_text}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {user && (
+            <div className="flex gap-2 mt-2">
+              <div className="w-7 h-7 rounded-full bg-[var(--color-ink)] flex items-center justify-center text-[0.6rem] font-semibold text-[var(--color-cream)] shrink-0">
+                {user.full_name?.[0]?.toUpperCase()}
+              </div>
+              <input
+                type="text"
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleAddComment()}
+                placeholder="Write a comment..."
+                className="flex-1 px-3 py-2 bg-[var(--color-cream)] border border-[rgba(26,23,20,0.06)] rounded-full text-[0.82rem] text-[var(--color-ink)] placeholder:text-[var(--color-ink4)] focus:outline-none focus:border-[var(--color-teal)]"
+              />
+              <button
+                onClick={handleAddComment}
+                disabled={!newComment.trim()}
+                className="px-3 py-2 bg-[var(--color-ink)] text-[var(--color-cream)] rounded-full text-[0.75rem] font-medium disabled:opacity-40 transition-all"
+              >
+                Post
+              </button>
+            </div>
+          )}
+
+          {!user && (
+            <p className="text-center text-[0.8rem] text-[var(--color-ink4)] py-3">
+              <Link href="/login" className="text-[var(--color-teal)] font-medium hover:underline">Sign in</Link> to comment
+            </p>
+          )}
+        </div>
+      )}
     </div>
   );
 }

@@ -1,70 +1,138 @@
-import api from "@/lib/axios";
-import type {
-  Profile, Skill, Education, Experience,
-  FollowListResponse, ProfileView,
-} from "./types";
+import { api } from "@/lib/api";
 
-interface MessageResponse { message: string; }
+export interface ProfileData {
+  user_id: string;
+  full_name: string;
+  email: string;
+  phone: string | null;
+  profile_image: string | null;
+  headline: string | null;
+  bio: string | null;
+  current_company: string | null;
+  current_position: string | null;
+  experience_years: number | null;
+  location: string | null;
+  notice_period: string | null;
+  portfolio_url: string | null;
+  linkedin_url: string | null;
+  github_url: string | null;
+  follower_count: number;
+  following_count: number;
+  is_following: boolean;
+  profile_view_count: number;
+}
+
+export interface ProfileUpdateData {
+  full_name?: string;
+  phone?: string;
+  profile_image?: string;
+  headline?: string;
+  bio?: string;
+  current_company?: string;
+  current_position?: string;
+  experience_years?: number;
+  location?: string;
+  notice_period?: string;
+  portfolio_url?: string;
+  linkedin_url?: string;
+  github_url?: string;
+}
+
+export interface Skill {
+  id: string;
+  skill_name: string;
+  experience_years: number | null;
+  skill_level: string | null;
+  endorsement_count: number;
+  is_endorsed_by_me: boolean;
+}
+
+export interface Education {
+  id: string;
+  institution_name: string;
+  degree: string | null;
+  specialization: string | null;
+  start_year: number | null;
+  end_year: number | null;
+}
+
+export interface Experience {
+  id: string;
+  company_name: string;
+  designation: string | null;
+  start_date: string | null;
+  end_date: string | null;
+  description: string | null;
+}
+
+export interface JobApplication {
+  id: string;
+  job_id: string;
+  applicant_id: string;
+  resume_id: string | null;
+  resume_url: string | null;
+  application_status: string;
+  ai_match_score: number | null;
+  applied_at: string;
+  job_title: string | null;
+  company_name: string | null;
+}
 
 export const profileApi = {
-  // Profile
-  getMyProfile: () =>
-    api.get<Profile>("/profile/me").then((r) => r.data),
+  getMyProfile: async (): Promise<ProfileData> => {
+    const res = await api.get("/profile/me");
+    return res.data;
+  },
 
-  getProfile: (userId: string) =>
-    api.get<Profile>(`/profile/${userId}`).then((r) => r.data),
+  updateProfile: async (data: ProfileUpdateData): Promise<ProfileData> => {
+    const res = await api.patch("/profile/me", data);
+    return res.data;
+  },
 
-  updateProfile: (data: Partial<Profile>) =>
-    api.patch<Profile>("/profile/me", data).then((r) => r.data),
+  getMySkills: async (userId: string): Promise<Skill[]> => {
+    const res = await api.get(`/profile/${userId}/skills`);
+    return res.data;
+  },
 
-  // Follow
-  toggleFollow: (userId: string) =>
-    api.post<MessageResponse>(`/profile/${userId}/follow`).then((r) => r.data),
+  addSkill: async (data: { skill_name: string; experience_years?: number; skill_level?: string }): Promise<Skill> => {
+    const res = await api.post("/profile/skills", data);
+    return res.data;
+  },
 
-  getFollowers: (userId: string) =>
-    api.get<FollowListResponse>(`/profile/${userId}/followers`).then((r) => r.data),
+  deleteSkill: async (skillId: string): Promise<void> => {
+    await api.delete(`/profile/skills/${skillId}`);
+  },
 
-  getFollowing: (userId: string) =>
-    api.get<FollowListResponse>(`/profile/${userId}/following`).then((r) => r.data),
+  getEducation: async (userId: string): Promise<Education[]> => {
+    const res = await api.get(`/profile/${userId}/education`);
+    return res.data;
+  },
 
-  // Skills
-  addSkill: (data: { skill_name: string; experience_years?: number; skill_level?: string }) =>
-    api.post<Skill>("/profile/skills", data).then((r) => r.data),
+  addEducation: async (data: { institution_name: string; degree?: string; specialization?: string; start_year?: number; end_year?: number }): Promise<Education> => {
+    const res = await api.post("/profile/education", data);
+    return res.data;
+  },
 
-  getUserSkills: (userId: string) =>
-    api.get<Skill[]>(`/profile/${userId}/skills`).then((r) => r.data),
+  deleteEducation: async (eduId: string): Promise<void> => {
+    await api.delete(`/profile/education/${eduId}`);
+  },
 
-  deleteSkill: (skillId: string) =>
-    api.delete<MessageResponse>(`/profile/skills/${skillId}`).then((r) => r.data),
+  getExperience: async (userId: string): Promise<Experience[]> => {
+    const res = await api.get(`/profile/${userId}/experience`);
+    return res.data;
+  },
 
-  endorseSkill: (skillId: string) =>
-    api.post<MessageResponse>(`/profile/skills/${skillId}/endorse`).then((r) => r.data),
+  addExperience: async (data: { company_name: string; designation?: string; start_date?: string; end_date?: string; description?: string }): Promise<Experience> => {
+    const res = await api.post("/profile/experience", data);
+    return res.data;
+  },
 
-  // Education
-  addEducation: (data: { institution_name: string; degree?: string; specialization?: string; start_year?: number; end_year?: number }) =>
-    api.post<Education>("/profile/education", data).then((r) => r.data),
+  deleteExperience: async (expId: string): Promise<void> => {
+    await api.delete(`/profile/experience/${expId}`);
+  },
 
-  getUserEducation: (userId: string) =>
-    api.get<Education[]>(`/profile/${userId}/education`).then((r) => r.data),
-
-  deleteEducation: (eduId: string) =>
-    api.delete<MessageResponse>(`/profile/education/${eduId}`).then((r) => r.data),
-
-  // Experience
-  addExperience: (data: { company_name: string; designation?: string; start_date?: string; end_date?: string; description?: string }) =>
-    api.post<Experience>("/profile/experience", data).then((r) => r.data),
-
-  getUserExperience: (userId: string) =>
-    api.get<Experience[]>(`/profile/${userId}/experience`).then((r) => r.data),
-
-  deleteExperience: (expId: string) =>
-    api.delete<MessageResponse>(`/profile/experience/${expId}`).then((r) => r.data),
-
-  // Share
-  shareProfile: (userId: string, platform?: string) =>
-    api.post<MessageResponse>(`/profile/${userId}/share`, { platform }).then((r) => r.data),
-
-  // Profile views
-  getProfileViews: () =>
-    api.get<ProfileView[]>("/profile/me/views").then((r) => r.data),
+  getMyApplications: async (page = 1, page_size = 20): Promise<{ total: number; items: JobApplication[] }> => {
+    const res = await api.get("/jobs/my-applications", { params: { page, page_size } });
+    return res.data;
+  },
 };

@@ -1,67 +1,69 @@
-import api from "@/lib/axios";
-import type {
-  FeedListResponse,
-  FeedPost,
-  CreatePostPayload,
-  UpdatePostPayload,
-  Comment,
-  CreateCommentPayload,
-  UpdateCommentPayload,
-  MessageResponse,
-} from "./types";
+import { api } from "@/lib/api";
+
+export interface FeedPost {
+  id: string;
+  author_id: string | null;
+  post_type: string;
+  title: string | null;
+  content: string | null;
+  media_url: string | null;
+  external_link: string | null;
+  category: string | null;
+  visibility: string;
+  created_at: string;
+  author_name: string | null;
+  author_email: string | null;
+  like_count: number;
+  comment_count: number;
+  is_liked: boolean;
+}
+
+export interface FeedListResponse {
+  total: number;
+  page: number;
+  page_size: number;
+  items: FeedPost[];
+}
+
+export interface Comment {
+  id: string;
+  user_id: string;
+  comment_text: string;
+  created_at: string;
+  author_name: string | null;
+}
 
 export const feedApi = {
-  listFeed: (page = 1, pageSize = 20) =>
-    api.get<FeedListResponse>("/feed/", { params: { page, page_size: pageSize } }).then((r) => r.data),
-
-  getPost: (postId: string) =>
-    api.get<FeedPost>(`/feed/${postId}`).then((r) => r.data),
-
-  createPost: (payload: CreatePostPayload) =>
-    api.post<FeedPost>("/feed/", payload).then((r) => r.data),
-
-  createPostWithMedia: (payload: {
-    content: string;
-    title?: string;
-    external_link?: string;
-    visibility?: string;
-    file: File;
-  }) => {
-    const formData = new FormData();
-    formData.append("content", payload.content);
-    if (payload.title) formData.append("title", payload.title);
-    if (payload.external_link) formData.append("external_link", payload.external_link);
-    if (payload.visibility) formData.append("visibility", payload.visibility);
-    formData.append("file", payload.file);
-
-    return api
-      .post<FeedPost>("/feed/with-media", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      })
-      .then((r) => r.data);
+  listFeed: async (page = 1, page_size = 20, category?: string): Promise<FeedListResponse> => {
+    const params: Record<string, any> = { page, page_size };
+    if (category) params.category = category;
+    const res = await api.get("/feed/", { params });
+    return res.data;
   },
 
-  updatePost: (postId: string, payload: UpdatePostPayload) =>
-    api.patch<FeedPost>(`/feed/${postId}`, payload).then((r) => r.data),
+  createPost: async (data: FormData): Promise<FeedPost> => {
+    const res = await api.post("/feed/with-media", data, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return res.data;
+  },
 
-  deletePost: (postId: string) =>
-    api.delete<MessageResponse>(`/feed/${postId}`).then((r) => r.data),
+  toggleLike: async (postId: string): Promise<{ message: string }> => {
+    const res = await api.post(`/feed/${postId}/like`);
+    return res.data;
+  },
 
-  toggleLike: (postId: string) =>
-    api.post<MessageResponse>(`/feed/${postId}/like`).then((r) => r.data),
+  getComments: async (postId: string): Promise<Comment[]> => {
+    const res = await api.get(`/feed/${postId}/comments`);
+    return res.data;
+  },
 
-  getComments: (postId: string) =>
-    api.get<Comment[]>(`/feed/${postId}/comments`).then((r) => r.data),
+  addComment: async (postId: string, comment_text: string): Promise<Comment> => {
+    const res = await api.post(`/feed/${postId}/comments`, { comment_text });
+    return res.data;
+  },
 
-  addComment: (postId: string, payload: CreateCommentPayload) =>
-    api.post<Comment>(`/feed/${postId}/comments`, payload).then((r) => r.data),
-
-  deleteComment: (postId: string, commentId: string) =>
-    api.delete<MessageResponse>(`/feed/${postId}/comments/${commentId}`).then((r) => r.data),
-
-  updateComment: (postId: string, commentId: string, payload: UpdateCommentPayload) =>
-    api.patch<Comment>(`/feed/${postId}/comments/${commentId}`, payload).then((r) => r.data),
-
-  getMyPosts: (page = 1, pageSize = 20) =>
-    api.get<FeedListResponse>("/feed/my", { params: { page, page_size: pageSize } }).then((r) => r.data),
+  deletePost: async (postId: string): Promise<void> => {
+    await api.delete(`/feed/${postId}`);
+  },
 };

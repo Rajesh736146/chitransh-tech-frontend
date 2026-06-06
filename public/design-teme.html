@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ChitranshTech — Find Your Dream Career</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,500;0,8..60,600;0,8..60,700;1,8..60,300;1,8..60,400;1,8..60,500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --cream: #F5F2EC;
+  --cream2: #EDE8DF;
+  --cream3: #E4DDD1;
+  --ink: #1A1714;
+  --ink2: #3D3830;
+  --ink3: #7A7268;
+  --ink4: #B0A89C;
+  --lime: #C8E63C;
+  --lime2: #D4F040;
+  --lime-dk: #8CAF00;
+  --teal: #2C6E6A;
+  --teal2: #1A4D4A;
+  --warm: #E8803A;
+  --border: rgba(26,23,20,0.1);
+  --border2: rgba(26,23,20,0.06);
+  --serif: 'Source Serif 4', Georgia, serif;
+  --sans: 'DM Sans', sans-serif;
+  --r-sm: 10px;
+  --r-md: 14px;
+  --r-lg: 20px;
+  --r-xl: 28px;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--cream);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* subtle noise texture */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 0; opacity: 0.4;
+}
+
+/* ───── NAV ───── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 3rem;
+  height: 60px;
+  background: rgba(245,242,236,0.88);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border2);
+}
+
+.nav-logo {
+  display: flex; align-items: center; gap: 0.6rem;
+  text-decoration: none; color: var(--ink);
+}
+.nav-logo-icon {
+  width: 30px; height: 30px;
+  background: var(--ink);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+}
+.nav-logo-icon svg { width: 16px; height: 16px; fill: var(--cream); }
+.nav-logo-text {
+  font-family: var(--serif);
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.nav-links {
+  display: flex; gap: 2.5rem; list-style: none;
+  position: absolute; left: 50%; transform: translateX(-50%);
+}
+.nav-links a {
+  color: var(--ink3); text-decoration: none;
+  font-size: 0.85rem; font-weight: 400;
+  transition: color 0.18s;
+}
+.nav-links a:hover { color: var(--ink); }
+
+.nav-right { display: flex; align-items: center; gap: 0.75rem; }
+
+.btn-signin {
+  font-family: var(--sans); font-size: 0.85rem;
+  color: var(--ink2); background: transparent;
+  border: none; cursor: pointer; padding: 0.4rem 0.8rem;
+  border-radius: var(--r-sm); transition: background 0.18s;
+}
+.btn-signin:hover { background: var(--cream2); }
+
+.btn-signup {
+  font-family: var(--sans); font-size: 0.85rem; font-weight: 500;
+  color: var(--cream); background: var(--ink);
+  border: none; cursor: pointer;
+  padding: 0.45rem 1.2rem;
+  border-radius: 100px;
+  transition: background 0.18s, transform 0.15s;
+}
+.btn-signup:hover { background: var(--ink2); transform: translateY(-1px); }
+
+/* ───── HERO ───── */
+.hero {
+  position: relative; z-index: 1;
+  padding: 100px 3rem 0;
+  max-width: 1200px; margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.hero-left { padding-bottom: 4rem; }
+
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  background: var(--lime);
+  color: var(--ink);
+  padding: 0.3rem 0.9rem;
+  border-radius: 100px;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 1.75rem;
+  animation: fadeUp 0.7s ease both;
+}
+.hero-badge .fire { font-size: 0.9rem; }
+
+h1.hero-title {
+  font-family: var(--serif);
+  font-size: clamp(3rem, 5vw, 4.8rem);
+  font-weight: 500;
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+  margin-bottom: 1.5rem;
+  animation: fadeUp 0.7s 0.1s ease both;
+}
+h1.hero-title em {
+  font-style: italic;
+  font-weight: 300;
+  color: var(--teal);
+}
+h1.hero-title .wave { display: inline-block; animation: wave 2.5s ease-in-out infinite; transform-origin: 70% 70%; }
+@keyframes wave {
+  0%, 100% { transform: rotate(0deg); }
+  20% { transform: rotate(18deg); }
+  40% { transform: rotate(-10deg); }
+  60% { transform: rotate(12deg); }
+  80% { transform: rotate(-5deg); }
+}
+
+.hero-sub {
+  font-size: 1rem;
+  color: var(--ink3);
+  max-width: 420px;
+  margin-bottom: 2.25rem;
+  line-height: 1.75;
+  font-weight: 300;
+  animation: fadeUp 0.7s 0.2s ease both;
+}
+.hero-sub strong { color: var(--teal); font-weight: 500; }
+
+/* search */
+.hero-search {
+  display: flex; align-items: center;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  padding: 0.35rem 0.35rem 0.35rem 1.25rem;
+  gap: 0.75rem;
+  max-width: 480px;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+  animation: fadeUp 0.7s 0.3s ease both;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+.hero-search:focus-within {
+  border-color: var(--teal);
+  box-shadow: 0 4px 24px rgba(44,110,106,0.12);
+}
+.search-ico { color: var(--ink4); font-size: 1rem; flex-shrink: 0; }
+.hero-search input {
+  flex: 1; border: none; outline: none;
+  font-family: var(--sans); font-size: 0.9rem;
+  color: var(--ink); background: transparent;
+}
+.hero-search input::placeholder { color: var(--ink4); }
+.btn-explore {
+  padding: 0.6rem 1.5rem;
+  background: var(--lime);
+  color: var(--ink);
+  border: none; border-radius: 100px;
+  font-family: var(--sans); font-size: 0.85rem; font-weight: 500;
+  cursor: pointer; white-space: nowrap;
+  transition: background 0.18s, transform 0.15s;
+}
+.btn-explore:hover { background: var(--lime2); transform: scale(1.02); }
+
+.popular-cats {
+  display: flex; flex-wrap: wrap; align-items: center;
+  gap: 0.5rem; margin-top: 1.25rem;
+  animation: fadeUp 0.7s 0.4s ease both;
+}
+.pop-label { font-size: 0.78rem; color: var(--ink4); margin-right: 0.25rem; }
+.cat-pill {
+  font-size: 0.78rem; padding: 0.28rem 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: 100px; color: var(--ink2);
+  background: transparent; cursor: pointer;
+  transition: all 0.18s;
+}
+.cat-pill:hover { border-color: var(--teal); color: var(--teal); background: rgba(44,110,106,0.05); }
+
+/* ───── HERO RIGHT — ORBITAL ───── */
+.hero-right {
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+  height: 520px;
+  animation: fadeUp 0.7s 0.25s ease both;
+}
+
+.orbital-bg {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+}
+.orb-ring-1 { width: 420px; height: 420px; background: rgba(200,230,60,0.06); }
+.orb-ring-2 { width: 300px; height: 300px; background: rgba(200,230,60,0.1); }
+.orb-ring-3 { width: 180px; height: 180px; background: rgba(200,230,60,0.16); border-color: rgba(200,230,60,0.3); }
+
+.orbital-center {
+  position: absolute;
+  width: 88px; height: 88px;
+  background: var(--ink);
+  border-radius: 50%;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+  z-index: 5;
+}
+.orbital-center-letter {
+  font-family: var(--serif);
+  font-size: 2rem; font-weight: 600;
+  color: var(--cream);
+  line-height: 1;
+}
+.orbital-center-label {
+  font-size: 0.5rem; color: var(--ink4);
+  letter-spacing: 0.08em; text-transform: uppercase;
+  margin-top: 2px;
+}
+
+/* floating cards */
+.float-card {
+  position: absolute;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 0.7rem 1rem;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  z-index: 10;
+  min-width: 160px;
+}
+.float-card-tag {
+  font-size: 0.65rem; color: var(--ink4);
+  letter-spacing: 0.04em; margin-bottom: 0.3rem;
+}
+.float-card-title {
+  font-family: var(--serif);
+  font-size: 0.88rem; font-weight: 600;
+  color: var(--ink); margin-bottom: 0.25rem;
+}
+.float-card-meta { font-size: 0.72rem; color: var(--ink3); }
+.float-card-lime { background: var(--lime); border-color: transparent; }
+.float-card-lime .float-card-tag { color: var(--ink2); }
+.float-card-lime .float-card-title { color: var(--ink); }
+
+.fc-top { top: 60px; right: 40px; animation: floatA 5s ease-in-out infinite; }
+.fc-left { top: 160px; left: 20px; animation: floatB 6s ease-in-out infinite; }
+.fc-bottom { bottom: 80px; right: 60px; animation: floatA 4.5s 1s ease-in-out infinite; }
+.fc-mid { bottom: 140px; left: 40px; animation: floatB 5.5s 0.5s ease-in-out infinite; }
+
+@keyframes floatA {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+@keyframes floatB {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(8px); }
+}
+
+/* orbit dots */
+.orbit-dot {
+  position: absolute;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--lime);
+  z-index: 6;
+}
+.dot-1 { top: 105px; right: 185px; }
+.dot-2 { bottom: 100px; left: 170px; }
+.dot-3 { top: 200px; right: 50px; width: 5px; height: 5px; background: var(--warm); }
+
+/* ───── COMPANIES STRIP ───── */
+.companies-strip {
+  position: relative; z-index: 1;
+  background: var(--ink);
+  padding: 1.4rem 3rem;
+  display: flex; align-items: center; justify-content: center;
+  gap: 3.5rem; flex-wrap: wrap;
+}
+.strip-label {
+  font-size: 0.72rem; color: var(--ink3);
+  letter-spacing: 0.1em; text-transform: uppercase;
+  margin-right: 1rem;
+}
+.strip-company {
+  font-family: var(--serif);
+  font-size: 0.95rem; font-weight: 500;
+  color: rgba(245,242,236,0.35);
+  cursor: pointer; transition: color 0.2s;
+  letter-spacing: 0.01em;
+}
+.strip-company:hover { color: rgba(245,242,236,0.75); }
+.strip-dot { color: rgba(245,242,236,0.15); font-size: 0.5rem; }
+
+/* ───── STATS ───── */
+.stats-section {
+  position: relative; z-index: 1;
+  max-width: 900px; margin: 0 auto;
+  padding: 5rem 3rem;
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+}
+.stat-item {
+  text-align: center;
+  padding: 2rem;
+  border-right: 1px solid var(--border2);
+}
+.stat-item:last-child { border-right: none; }
+.stat-num {
+  font-family: var(--serif);
+  font-size: 2.6rem; font-weight: 600;
+  letter-spacing: -0.04em;
+  color: var(--ink); line-height: 1;
+  margin-bottom: 0.4rem;
+}
+.stat-num sup { font-size: 1.2rem; font-weight: 400; }
+.stat-label {
+  font-size: 0.78rem; color: var(--ink4);
+  letter-spacing: 0.04em; text-transform: uppercase;
+}
+
+/* ───── FEATURED JOBS ───── */
+.section-wrap {
+  position: relative; z-index: 1;
+  max-width: 1200px; margin: 0 auto;
+  padding: 0 3rem 6rem;
+}
+
+.section-head {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+.section-label {
+  font-size: 0.72rem; color: var(--teal);
+  letter-spacing: 0.1em; text-transform: uppercase;
+  margin-bottom: 0.75rem;
+}
+h2.section-title {
+  font-family: var(--serif);
+  font-size: clamp(2rem, 3.5vw, 2.8rem);
+  font-weight: 500; letter-spacing: -0.03em;
+  color: var(--ink); line-height: 1.1;
+  margin-bottom: 0.75rem;
+}
+h2.section-title em { font-style: italic; font-weight: 300; color: var(--teal); }
+.section-sub { font-size: 0.92rem; color: var(--ink3); max-width: 420px; margin: 0 auto; font-weight: 300; line-height: 1.7; }
+
+/* jobs grid */
+.jobs-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.job-card {
+  background: #fff;
+  border: 1px solid var(--border2);
+  border-radius: var(--r-lg);
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: all 0.25s;
+  position: relative;
+  overflow: hidden;
+}
+.job-card:hover {
+  border-color: var(--border);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+  transform: translateY(-3px);
+}
+
+.job-card-top {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  margin-bottom: 1.1rem;
+}
+.job-co-logo {
+  width: 42px; height: 42px;
+  border-radius: var(--r-sm);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--serif); font-size: 1.1rem; font-weight: 600;
+  flex-shrink: 0;
+}
+.logo-teal { background: rgba(44,110,106,0.12); color: var(--teal2); }
+.logo-lime { background: rgba(200,230,60,0.3); color: var(--lime-dk); }
+.logo-warm { background: rgba(232,128,58,0.15); color: #B85A1A; }
+.logo-ink  { background: var(--cream2); color: var(--ink2); }
+.logo-blue { background: rgba(59,130,246,0.1); color: #1D4ED8; }
+.logo-pink { background: rgba(236,72,153,0.1); color: #9D174D; }
+
+.job-badge {
+  font-size: 0.65rem; padding: 0.22rem 0.6rem;
+  border-radius: 100px; font-weight: 500;
+  letter-spacing: 0.04em; text-transform: uppercase;
+}
+.badge-remote { background: var(--cream2); color: var(--ink3); }
+.badge-hot    { background: rgba(232,128,58,0.15); color: #B85A1A; }
+.badge-new    { background: rgba(200,230,60,0.3); color: var(--lime-dk); }
+
+.job-loc {
+  font-size: 0.72rem; color: var(--ink4);
+  margin-bottom: 0.35rem;
+  display: flex; align-items: center; gap: 0.3rem;
+}
+.loc-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--lime); flex-shrink: 0;
+}
+.loc-dot.warm { background: var(--warm); }
+.loc-dot.teal { background: var(--teal); }
+
+.job-title {
+  font-family: var(--serif);
+  font-size: 1.05rem; font-weight: 500;
+  color: var(--ink); margin-bottom: 0.25rem;
+  letter-spacing: -0.01em; line-height: 1.3;
+}
+.job-company { font-size: 0.8rem; color: var(--ink3); margin-bottom: 1rem; }
+
+.job-tags {
+  display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1.1rem;
+}
+.job-tag {
+  font-size: 0.7rem; padding: 0.22rem 0.6rem;
+  border: 1px solid var(--border); border-radius: 6px;
+  color: var(--ink3); background: var(--cream);
+}
+
+.job-footer {
+  display: flex; justify-content: space-between; align-items: center;
+  border-top: 1px solid var(--border2); padding-top: 0.9rem;
+}
+.job-salary {
+  font-family: var(--serif);
+  font-size: 0.95rem; font-weight: 600; color: var(--ink);
+}
+.job-type {
+  font-size: 0.72rem; padding: 0.22rem 0.65rem;
+  border-radius: 100px;
+}
+.type-full { background: rgba(44,110,106,0.1); color: var(--teal); }
+.type-hybrid { background: rgba(232,128,58,0.12); color: #B85A1A; }
+.type-remote { background: rgba(200,230,60,0.25); color: var(--lime-dk); }
+
+.view-all-row {
+  text-align: center; margin-top: 2.5rem;
+}
+.btn-view-all {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  padding: 0.75rem 2rem;
+  border: 1px solid var(--border);
+  background: transparent; color: var(--ink);
+  border-radius: 100px;
+  font-family: var(--sans); font-size: 0.875rem; font-weight: 400;
+  cursor: pointer; transition: all 0.2s;
+}
+.btn-view-all:hover { background: var(--ink); color: var(--cream); border-color: var(--ink); }
+
+/* ───── SPLIT FEATURE SECTION ───── */
+.split-section {
+  position: relative; z-index: 1;
+  background: var(--ink);
+  padding: 7rem 3rem;
+}
+.split-inner {
+  max-width: 1200px; margin: 0 auto;
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 6rem; align-items: center;
+}
+.split-label {
+  font-size: 0.72rem; color: rgba(245,242,236,0.35);
+  letter-spacing: 0.1em; text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+h2.split-title {
+  font-family: var(--serif);
+  font-size: clamp(2rem, 3vw, 2.8rem);
+  font-weight: 500; letter-spacing: -0.03em;
+  color: var(--cream); line-height: 1.1;
+  margin-bottom: 1.5rem;
+}
+h2.split-title em { font-style: italic; font-weight: 300; color: var(--lime); }
+.split-sub { font-size: 0.93rem; color: rgba(245,242,236,0.5); font-weight: 300; line-height: 1.75; margin-bottom: 2.5rem; }
+
+.split-features { display: flex; flex-direction: column; gap: 1.2rem; }
+.split-feature {
+  display: flex; gap: 1rem;
+  padding: 1.25rem;
+  border: 1px solid rgba(245,242,236,0.08);
+  border-radius: var(--r-md);
+  background: rgba(245,242,236,0.03);
+  transition: background 0.2s;
+}
+.split-feature:hover { background: rgba(245,242,236,0.06); }
+.sf-icon {
+  width: 38px; height: 38px; flex-shrink: 0;
+  border-radius: var(--r-sm);
+  background: rgba(200,230,60,0.15);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem;
+}
+.sf-text h4 {
+  font-family: var(--serif);
+  font-size: 0.95rem; font-weight: 500;
+  color: var(--cream); margin-bottom: 0.25rem; letter-spacing: -0.01em;
+}
+.sf-text p { font-size: 0.82rem; color: rgba(245,242,236,0.45); line-height: 1.65; }
+
+/* employer card */
+.employer-card {
+  background: var(--cream);
+  border-radius: var(--r-xl);
+  padding: 2.5rem;
+  position: relative; overflow: hidden;
+}
+.employer-card::before {
+  content: '';
+  position: absolute; top: -80px; right: -80px;
+  width: 240px; height: 240px;
+  background: rgba(200,230,60,0.35);
+  border-radius: 50%; filter: blur(60px);
+}
+.emp-label {
+  font-size: 0.7rem; color: var(--ink4);
+  letter-spacing: 0.08em; text-transform: uppercase;
+  margin-bottom: 1.5rem; position: relative;
+}
+.emp-metric {
+  font-family: var(--serif);
+  font-size: 3.5rem; font-weight: 600;
+  letter-spacing: -0.05em; color: var(--ink);
+  line-height: 1; position: relative;
+}
+.emp-metric span { color: var(--teal); }
+.emp-desc {
+  font-size: 0.87rem; color: var(--ink3);
+  margin: 0.75rem 0 2rem; max-width: 260px; line-height: 1.7; position: relative;
+}
+.btn-post-job {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  padding: 0.7rem 1.6rem;
+  background: var(--ink); color: var(--cream);
+  border: none; border-radius: 100px;
+  font-family: var(--sans); font-size: 0.875rem; font-weight: 500;
+  cursor: pointer; position: relative;
+  transition: all 0.2s;
+}
+.btn-post-job:hover { background: var(--teal2); }
+
+/* ───── TESTIMONIALS ───── */
+.testimonials-section {
+  position: relative; z-index: 1;
+  max-width: 1200px; margin: 0 auto;
+  padding: 6rem 3rem;
+}
+.testimonials-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 1rem; margin-top: 3rem;
+}
+.testi-card {
+  background: #fff;
+  border: 1px solid var(--border2);
+  border-radius: var(--r-lg);
+  padding: 1.75rem;
+  transition: box-shadow 0.2s;
+}
+.testi-card:hover { box-shadow: 0 6px 24px rgba(0,0,0,0.07); }
+.testi-stars { color: var(--lime-dk); font-size: 0.75rem; margin-bottom: 1rem; letter-spacing: 2px; }
+.testi-quote {
+  font-family: var(--serif);
+  font-size: 0.95rem; font-style: italic; font-weight: 400;
+  color: var(--ink2); line-height: 1.75; margin-bottom: 1.5rem;
+}
+.testi-author { display: flex; align-items: center; gap: 0.75rem; }
+.testi-av {
+  width: 36px; height: 36px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--serif); font-size: 0.75rem; font-weight: 600;
+}
+.av-teal { background: rgba(44,110,106,0.12); color: var(--teal2); }
+.av-lime { background: rgba(200,230,60,0.3); color: var(--lime-dk); }
+.av-warm { background: rgba(232,128,58,0.15); color: #B85A1A; }
+.testi-name { font-size: 0.85rem; font-weight: 500; color: var(--ink); }
+.testi-role { font-size: 0.72rem; color: var(--ink4); }
+
+/* ───── BOTTOM CTA ───── */
+.bottom-cta {
+  position: relative; z-index: 1;
+  margin: 0 3rem 6rem;
+  max-width: 1140px; margin-left: auto; margin-right: auto;
+  background: var(--ink);
+  border-radius: var(--r-xl);
+  padding: 5rem 4rem;
+  text-align: center;
+  overflow: hidden;
+}
+.bottom-cta::before {
+  content: '';
+  position: absolute; bottom: -100px; left: 50%;
+  transform: translateX(-50%);
+  width: 600px; height: 300px;
+  background: rgba(200,230,60,0.12);
+  border-radius: 50%; filter: blur(80px);
+}
+.bottom-cta h2 {
+  font-family: var(--serif);
+  font-size: clamp(2rem, 4vw, 3.5rem); font-weight: 500;
+  letter-spacing: -0.03em; color: var(--cream);
+  line-height: 1.1; margin-bottom: 1rem; position: relative;
+}
+.bottom-cta h2 em { font-style: italic; font-weight: 300; color: var(--lime); }
+.bottom-cta p { color: rgba(245,242,236,0.5); margin-bottom: 2.5rem; position: relative; font-size: 0.95rem; }
+.cta-buttons { display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; position: relative; }
+.btn-cta-pri {
+  padding: 0.8rem 2rem;
+  background: var(--lime); color: var(--ink);
+  border: none; border-radius: 100px;
+  font-family: var(--sans); font-size: 0.9rem; font-weight: 500;
+  cursor: pointer; transition: all 0.2s;
+}
+.btn-cta-pri:hover { background: var(--lime2); transform: translateY(-2px); }
+.btn-cta-sec {
+  padding: 0.8rem 2rem;
+  background: transparent; color: rgba(245,242,236,0.65);
+  border: 1px solid rgba(245,242,236,0.15);
+  border-radius: 100px;
+  font-family: var(--sans); font-size: 0.9rem; font-weight: 400;
+  cursor: pointer; transition: all 0.2s;
+}
+.btn-cta-sec:hover { color: var(--cream); border-color: rgba(245,242,236,0.35); }
+
+/* ───── FOOTER ───── */
+footer {
+  position: relative; z-index: 1;
+  background: var(--ink);
+  padding: 3rem 3rem 2rem;
+  border-top: 1px solid rgba(245,242,236,0.06);
+}
+.footer-inner {
+  max-width: 1200px; margin: 0 auto;
+}
+.footer-top {
+  display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 4rem; padding-bottom: 3rem;
+  border-bottom: 1px solid rgba(245,242,236,0.06);
+  margin-bottom: 1.75rem;
+}
+.footer-brand-name {
+  font-family: var(--serif); font-size: 1.1rem; font-weight: 600;
+  color: var(--cream); margin-bottom: 0.75rem; letter-spacing: -0.01em;
+}
+.footer-brand p { font-size: 0.85rem; color: rgba(245,242,236,0.35); line-height: 1.7; max-width: 250px; }
+.footer-col h5 {
+  font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase;
+  color: rgba(245,242,236,0.3); margin-bottom: 1.2rem;
+}
+.footer-col ul { list-style: none; }
+.footer-col li { margin-bottom: 0.55rem; }
+.footer-col a { font-size: 0.85rem; color: rgba(245,242,236,0.5); text-decoration: none; transition: color 0.18s; }
+.footer-col a:hover { color: var(--cream); }
+.footer-bottom {
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 0.78rem; color: rgba(245,242,236,0.25);
+}
+
+/* ───── ANIMATIONS ───── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* ───── RESPONSIVE ───── */
+@media (max-width: 960px) {
+  .hero { grid-template-columns: 1fr; padding: 90px 1.5rem 3rem; min-height: auto; }
+  .hero-right { height: 320px; }
+  .orb-ring-1 { width: 280px; height: 280px; }
+  .orb-ring-2 { width: 200px; height: 200px; }
+  .orb-ring-3 { width: 120px; height: 120px; }
+  .orbital-center { width: 64px; height: 64px; }
+  .orbital-center-letter { font-size: 1.5rem; }
+  nav { padding: 0 1.5rem; }
+  .nav-links { display: none; }
+  .stats-section { grid-template-columns: repeat(2, 1fr); }
+  .jobs-grid { grid-template-columns: 1fr; }
+  .split-inner { grid-template-columns: 1fr; gap: 3rem; }
+  .testimonials-grid { grid-template-columns: 1fr; }
+  .footer-top { grid-template-columns: 1fr 1fr; gap: 2rem; }
+  .companies-strip { gap: 1.5rem; }
+  h1.hero-title { font-size: 2.5rem; }
+  .section-wrap { padding: 0 1.5rem 4rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">
+    <div class="nav-logo-icon">
+      <svg viewBox="0 0 16 16"><path d="M8 1L14 4V12L8 15L2 12V4L8 1Z"/></svg>
+    </div>
+    <span class="nav-logo-text">ChitranshTech</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#">Latest Jobs</a></li>
+    <li><a href="#">Build ATS CV</a></li>
+    <li><a href="#">Post a Job</a></li>
+    <li><a href="#">Feed</a></li>
+  </ul>
+  <div class="nav-right">
+    <button class="btn-signin">Sign In</button>
+    <button class="btn-signup">Sign Up</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-left">
+    <div class="hero-badge">
+      <span class="fire">🏆</span>
+      #1 Platform for Jobs
+    </div>
+
+    <h1 class="hero-title">
+      New offers are<br>
+      waiting <em>for you</em>
+      <span class="wave">👋</span>
+    </h1>
+
+    <p class="hero-sub">
+      Search and <strong>find your dream job</strong> is now easier than ever.<br>
+      Just browse a job and apply if you need to.
+    </p>
+
+    <div class="hero-search">
+      <span class="search-ico">⌕</span>
+      <input type="text" placeholder="Job title, Salary, or Companies...">
+      <button class="btn-explore">Explore Now</button>
+    </div>
+
+    <div class="popular-cats">
+      <span class="pop-label">Popular:</span>
+      <span class="cat-pill">UX Designer</span>
+      <span class="cat-pill">Front-end Dev</span>
+      <span class="cat-pill">Back-end Dev</span>
+      <span class="cat-pill">Full Stack</span>
+      <span class="cat-pill">Data Science</span>
+      <span class="cat-pill">DevOps</span>
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <div class="orbital-bg orb-ring-1"></div>
+    <div class="orbital-bg orb-ring-2"></div>
+    <div class="orbital-bg orb-ring-3"></div>
+
+    <div class="orbit-dot dot-1"></div>
+    <div class="orbit-dot dot-2"></div>
+    <div class="orbit-dot dot-3"></div>
+
+    <div class="orbital-center">
+      <div class="orbital-center-letter">C</div>
+      <div class="orbital-center-label">ChitranshTech</div>
+    </div>
+
+    <!-- floating job preview cards -->
+    <div class="float-card fc-top">
+      <div class="float-card-tag">The Top Company · Full-time</div>
+      <div class="float-card-title">Hiring Developer</div>
+      <div class="float-card-meta">5 days ago · Remote</div>
+    </div>
+
+    <div class="float-card fc-left float-card-lime">
+      <div class="float-card-tag">Design · Bangalore</div>
+      <div class="float-card-title">UI/UX Designer</div>
+      <div class="float-card-meta">40 vacancies open</div>
+    </div>
+
+    <div class="float-card fc-bottom">
+      <div class="float-card-tag">Engineering</div>
+      <div class="float-card-title">Backend Engineer</div>
+      <div class="float-card-meta">₹32–48 LPA · Hybrid</div>
+    </div>
+
+    <div class="float-card fc-mid" style="min-width:130px">
+      <div class="float-card-tag">AI / ML</div>
+      <div class="float-card-title">Data Scientist</div>
+      <div class="float-card-meta">12 new today</div>
+    </div>
+  </div>
+</div>
+
+<!-- COMPANIES STRIP -->
+<div class="companies-strip">
+  <span class="strip-label">Trusted by the best companies</span>
+  <span class="strip-company">Cloud</span>
+  <span class="strip-dot">●</span>
+  <span class="strip-company">Proline</span>
+  <span class="strip-dot">●</span>
+  <span class="strip-company">Leafe</span>
+  <span class="strip-dot">●</span>
+  <span class="strip-company">Penta</span>
+  <span class="strip-dot">●</span>
+  <span class="strip-company">Recharge</span>
+  <span class="strip-dot">●</span>
+  <span class="strip-company">Snowflake</span>
+  <span class="strip-dot">●</span>
+  <span class="strip-company">Hues</span>
+  <span class="strip-dot">●</span>
+  <span class="strip-company">Cactus</span>
+  <span class="strip-dot">●</span>
+  <span class="strip-company">Vision</span>
+  <span class="strip-dot">●</span>
+  <span class="strip-company">Greenish</span>
+</div>
+
+<!-- STATS -->
+<div class="stats-section reveal">
+  <div class="stat-item">
+    <div class="stat-num">12K<sup>+</sup></div>
+    <div class="stat-label">Jobs Posted</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">8K<sup>+</sup></div>
+    <div class="stat-label">Companies</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">5M<sup>+</sup></div>
+    <div class="stat-label">Matches Made</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">3M<sup>+</sup></div>
+    <div class="stat-label">Startup-ready Candidates</div>
+  </div>
+</div>
+
+<!-- FEATURED JOBS -->
+<div class="section-wrap reveal">
+  <div class="section-head">
+    <div class="section-label">✦ Curated Listings</div>
+    <h2 class="section-title">Latest <em>featured</em> jobs</h2>
+    <p class="section-sub">Search and find your dream job is now easier than ever. Just browse a job and apply if you need to.</p>
+  </div>
+
+  <div class="jobs-grid">
+    <div class="job-card">
+      <div class="job-card-top">
+        <div class="job-co-logo logo-teal">R</div>
+        <span class="job-badge badge-remote">Remote</span>
+      </div>
+      <div class="job-loc"><span class="loc-dot"></span> Delhi · 14 days ago</div>
+      <div class="job-title">Graphics Designer</div>
+      <div class="job-company">Razorpay Design Studio</div>
+      <div class="job-tags">
+        <span class="job-tag">Figma</span>
+        <span class="job-tag">Illustrator</span>
+        <span class="job-tag">Branding</span>
+      </div>
+      <div class="job-footer">
+        <div class="job-salary">₹12–18 LPA</div>
+        <span class="job-type type-remote">Remote</span>
+      </div>
+    </div>
+
+    <div class="job-card">
+      <div class="job-card-top">
+        <div class="job-co-logo logo-lime">Z</div>
+        <span class="job-badge badge-new">New</span>
+      </div>
+      <div class="job-loc"><span class="loc-dot teal"></span> Delhi · 14 days ago</div>
+      <div class="job-title">Frontend Engineer</div>
+      <div class="job-company">Zepto · Product Team</div>
+      <div class="job-tags">
+        <span class="job-tag">React</span>
+        <span class="job-tag">TypeScript</span>
+        <span class="job-tag">Next.js</span>
+      </div>
+      <div class="job-footer">
+        <div class="job-salary">₹24–36 LPA</div>
+        <span class="job-type type-hybrid">Hybrid</span>
+      </div>
+    </div>
+
+    <div class="job-card">
+      <div class="job-card-top">
+        <div class="job-co-logo logo-warm">C</div>
+        <span class="job-badge badge-hot">🔥 Hot</span>
+      </div>
+      <div class="job-loc"><span class="loc-dot warm"></span> Delhi · 14 days ago</div>
+      <div class="job-title">Backend Engineer</div>
+      <div class="job-company">Cred · Infrastructure</div>
+      <div class="job-tags">
+        <span class="job-tag">Golang</span>
+        <span class="job-tag">PostgreSQL</span>
+        <span class="job-tag">Kafka</span>
+      </div>
+      <div class="job-footer">
+        <div class="job-salary">₹32–48 LPA</div>
+        <span class="job-type type-full">Full-time</span>
+      </div>
+    </div>
+
+    <div class="job-card">
+      <div class="job-card-top">
+        <div class="job-co-logo logo-blue">N</div>
+        <span class="job-badge badge-new">New</span>
+      </div>
+      <div class="job-loc"><span class="loc-dot teal"></span> Bangalore · 2 days ago</div>
+      <div class="job-title">ML Research Engineer</div>
+      <div class="job-company">Navi · AI Platform</div>
+      <div class="job-tags">
+        <span class="job-tag">PyTorch</span>
+        <span class="job-tag">LLMs</span>
+        <span class="job-tag">Python</span>
+      </div>
+      <div class="job-footer">
+        <div class="job-salary">₹45–80 LPA</div>
+        <span class="job-type type-full">Full-time</span>
+      </div>
+    </div>
+
+    <div class="job-card">
+      <div class="job-card-top">
+        <div class="job-co-logo logo-ink">S</div>
+        <span class="job-badge badge-remote">Remote</span>
+      </div>
+      <div class="job-loc"><span class="loc-dot"></span> Mumbai · 5 days ago</div>
+      <div class="job-title">Product Manager</div>
+      <div class="job-company">Swiggy · Growth</div>
+      <div class="job-tags">
+        <span class="job-tag">Growth</span>
+        <span class="job-tag">Analytics</span>
+        <span class="job-tag">A/B Testing</span>
+      </div>
+      <div class="job-footer">
+        <div class="job-salary">₹28–45 LPA</div>
+        <span class="job-type type-hybrid">Hybrid</span>
+      </div>
+    </div>
+
+    <div class="job-card">
+      <div class="job-card-top">
+        <div class="job-co-logo logo-pink">P</div>
+        <span class="job-badge badge-hot">🔥 Hot</span>
+      </div>
+      <div class="job-loc"><span class="loc-dot warm"></span> Hyderabad · 1 day ago</div>
+      <div class="job-title">DevOps Engineer</div>
+      <div class="job-company">PhonePe · Platform</div>
+      <div class="job-tags">
+        <span class="job-tag">Kubernetes</span>
+        <span class="job-tag">Terraform</span>
+        <span class="job-tag">AWS</span>
+      </div>
+      <div class="job-footer">
+        <div class="job-salary">₹30–50 LPA</div>
+        <span class="job-type type-full">Full-time</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="view-all-row">
+    <button class="btn-view-all">View all jobs →</button>
+  </div>
+</div>
+
+<!-- SPLIT SECTION: FOR EMPLOYERS -->
+<div class="split-section">
+  <div class="split-inner">
+    <div class="reveal">
+      <div class="split-label">✦ For Employers</div>
+      <h2 class="split-title">Hire the <em>brilliant minds</em> your company deserves</h2>
+      <p class="split-sub">Post once, reach thousands of pre-vetted, actively interviewing candidates. Our AI does the heavy lifting so your team can focus on people, not paperwork.</p>
+      <div class="split-features">
+        <div class="split-feature">
+          <div class="sf-icon">🧠</div>
+          <div class="sf-text">
+            <h4>AI Candidate Screening</h4>
+            <p>Automatically rank applicants by fit, saving your HR team dozens of hours per role.</p>
+          </div>
+        </div>
+        <div class="split-feature">
+          <div class="sf-icon">⚡</div>
+          <div class="sf-text">
+            <h4>ATS Integration</h4>
+            <p>Works with your existing tools — Greenhouse, Lever, Workday — without disrupting your workflow.</p>
+          </div>
+        </div>
+        <div class="split-feature">
+          <div class="sf-icon">📊</div>
+          <div class="sf-text">
+            <h4>Hiring Analytics Dashboard</h4>
+            <p>Track pipeline health, time-to-offer, and drop-off rates with real-time insights.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="reveal">
+      <div class="employer-card">
+        <div class="emp-label">Active Employers This Month</div>
+        <div class="emp-metric">140<span>K+</span></div>
+        <p class="emp-desc">Companies across India and globally are finding their next great hire on ChitranshTech every week.</p>
+        <button class="btn-post-job">Post a Job →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TESTIMONIALS -->
+<div class="testimonials-section reveal">
+  <div class="section-head">
+    <div class="section-label">✦ Stories</div>
+    <h2 class="section-title">People who found <em>their future</em> here</h2>
+  </div>
+  <div class="testimonials-grid">
+    <div class="testi-card">
+      <div class="testi-stars">★ ★ ★ ★ ★</div>
+      <p class="testi-quote">"Applied to 8 companies through ChitranshTech. Had 3 final-round interviews in under two weeks. The ATS CV builder alone made my applications stand out."</p>
+      <div class="testi-author">
+        <div class="testi-av av-teal">AK</div>
+        <div>
+          <div class="testi-name">Arjun Kapoor</div>
+          <div class="testi-role">Senior Engineer · Now at Zepto</div>
+        </div>
+      </div>
+    </div>
+    <div class="testi-card">
+      <p class="testi-stars">★ ★ ★ ★ ★</p>
+      <p class="testi-quote">"We filled 4 senior roles in 6 weeks — roles that had been open for months on other platforms. The quality of applicants was genuinely different."</p>
+      <div class="testi-author">
+        <div class="testi-av av-lime">PR</div>
+        <div>
+          <div class="testi-name">Priya Raghavan</div>
+          <div class="testi-role">Head of Talent · Razorpay</div>
+        </div>
+      </div>
+    </div>
+    <div class="testi-card">
+      <p class="testi-stars">★ ★ ★ ★ ★</p>
+      <p class="testi-quote">"Switched careers from finance to product. The job feed actually surfaced roles I'd never have found myself, and the salary data helped me negotiate properly."</p>
+      <div class="testi-author">
+        <div class="testi-av av-warm">SK</div>
+        <div>
+          <div class="testi-name">Sneha Khanna</div>
+          <div class="testi-role">Product Manager · Early-stage startup</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BOTTOM CTA -->
+<div class="bottom-cta reveal">
+  <h2>Your next opportunity<br>is one search <em>away.</em></h2>
+  <p>Join 3 million professionals already building their careers on ChitranshTech.</p>
+  <div class="cta-buttons">
+    <button class="btn-cta-pri">Find Jobs Now →</button>
+    <button class="btn-cta-sec">Post a Job</button>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="footer-brand-name">ChitranshTech</div>
+        <p>The modern job platform for a world where talent is borderless. Find the work that fits who you are.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Job Seekers</h5>
+        <ul>
+          <li><a href="#">Browse Jobs</a></li>
+          <li><a href="#">Build ATS CV</a></li>
+          <li><a href="#">Salary Explorer</a></li>
+          <li><a href="#">Career Paths</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Employers</h5>
+        <ul>
+          <li><a href="#">Post a Job</a></li>
+          <li><a href="#">Talent Search</a></li>
+          <li><a href="#">Pricing</a></li>
+          <li><a href="#">ATS Integration</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Company</h5>
+        <ul>
+          <li><a href="#">About</a></li>
+          <li><a href="#">Feed</a></li>
+          <li><a href="#">Blog</a></li>
+          <li><a href="#">Privacy</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ChitranshTech. All rights reserved.</span>
+      <span>Built with care for the next generation of work.</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+const reveals = document.querySelectorAll('.reveal');
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); }
+  });
+}, { threshold: 0.08 });
+reveals.forEach(r => io.observe(r));
+</script>
+
+</body>
+</html>

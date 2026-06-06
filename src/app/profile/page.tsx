@@ -1,344 +1,274 @@
 "use client";
 
+import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useState } from "react";
-import Navbar from "@/components/Navbar";
+import { useRouter } from "next/navigation";
+import { useAuthStore, useAuthHydration } from "@/modules/auth/store";
 import { profileApi } from "@/modules/profile/api";
-import { useAuthStore } from "@/modules/auth/store";
-import type { Profile, Skill, Education, Experience } from "@/modules/profile/types";
+import { api } from "@/lib/api";
+import type { ProfileData, Skill, Education, Experience } from "@/modules/profile/api";
 import { toast } from "sonner";
-import {
-  MapPin, Briefcase, GraduationCap, Award, Plus, Pencil,
-  ExternalLink, Eye, Users, Share2, Trash2,
-} from "lucide-react";
 
-export default function ProfilePage() {
-  const { user } = useAuthStore();
-  const [profile, setProfile] = useState<Profile | null>(null);
+interface FollowItem {
+  user_id: string;
+  full_name: string;
+  headline: string | null;
+  profile_image: string | null;
+}
+
+export default function MyProfilePage() {
+  useAuthHydration();
+  const { user, logout } = useAuthStore();
+  const router = useRouter();
+  const [profile, setProfile] = useState<ProfileData | null>(null);
   const [skills, setSkills] = useState<Skill[]>([]);
   const [education, setEducation] = useState<Education[]>([]);
   const [experience, setExperience] = useState<Experience[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [editMode, setEditMode] = useState(false);
-  const [editData, setEditData] = useState({ headline: "", bio: "", current_company: "", current_position: "", location: "" });
+  const [followers, setFollowers] = useState<FollowItem[]>([]);
+  const [following, setFollowing] = useState<FollowItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [showConnections, setShowConnections] = useState<"followers" | "following" | null>(null);
 
   useEffect(() => {
-    if (!user) return;
-    loadProfile();
-  }, [user]);
+    const token = localStorage.getItem("token");
+    if (!token) { router.push("/login"); return; }
+    loadAll();
+  }, []);
 
-  const loadProfile = async () => {
+  const loadAll = async () => {
     try {
-      const [p, s, edu, exp] = await Promise.all([
-        profileApi.getMyProfile(),
-        profileApi.getUserSkills(user!.id),
-        profileApi.getUserEducation(user!.id),
-        profileApi.getUserExperience(user!.id),
-      ]);
+      const p = await profileApi.getMyProfile();
       setProfile(p);
-      setSkills(s);
-      setEducation(edu);
-      setExperience(exp);
-      setEditData({
-        headline: p.headline || "",
-        bio: p.bio || "",
-        current_company: p.current_company || "",
-        current_position: p.current_position || "",
-        location: p.location || "",
-      });
-    } catch {
-      // Profile might not exist yet
-    } finally {
-      setLoading(false);
-    }
+
+      const [skRes, edRes, exRes, flRes, fgRes] = await Promise.allSettled([
+        profileApi.getMySkills(p.user_id),
+        profileApi.getEducation(p.user_id),
+        profileApi.getExperience(p.user_id),
+        api.get(`/profile/${p.user_id}/followers`),
+        api.get(`/profile/${p.user_id}/following`),
+      ]);
+
+      if (skRes.status === "fulfilled") setSkills(skRes.value);
+      if (edRes.status === "fulfilled") setEducation(edRes.value);
+      if (exRes.status === "fulfilled") setExperience(exRes.value);
+      if (flRes.status === "fulfilled") setFollowers(flRes.value.data.items);
+      if (fgRes.status === "fulfilled") setFollowing(fgRes.value.data.items);
+    } catch { /* not logged in */ }
+    finally { setIsLoading(false); }
   };
 
-  const handleSaveProfile = async () => {
-    try {
-      await profileApi.updateProfile(editData);
-      toast.success("Profile updated");
-      setEditMode(false);
-      loadProfile();
-    } catch (err: any) {
-      console.error("Profile update failed", err);
-      const message =
-        err?.response?.data?.detail ||
-        err?.response?.data?.message ||
-        err?.message ||
-        "Failed to update profile";
-      toast.error(message);
-    }
-  };
-
-  const handleAddSkill = async () => {
-    const name = prompt("Enter skill name:");
-    if (!name) return;
-    try {
-      await profileApi.addSkill({ skill_name: name });
-      toast.success("Skill added");
-      const s = await profileApi.getUserSkills(user!.id);
-      setSkills(s);
-    } catch {
-      toast.error("Failed to add skill");
-    }
-  };
-
-  const handleDeleteSkill = async (id: string) => {
-    try {
-      await profileApi.deleteSkill(id);
-      setSkills(skills.filter((s) => s.id !== id));
-    } catch {
-      toast.error("Failed to delete skill");
-    }
-  };
-
-  if (loading) {
+  if (isLoading) {
     return (
-      <div className="min-h-screen bg-[var(--color-surface)]">
-        <Navbar />
-        <div className="max-w-[1128px] mx-auto px-4 py-8">
-          <div className="bg-white rounded-xl border border-[var(--color-border)] p-8 animate-pulse">
-            <div className="h-32 bg-gray-200 rounded-lg mb-4" />
-            <div className="h-6 bg-gray-200 rounded w-48 mb-2" />
-            <div className="h-4 bg-gray-200 rounded w-64" />
-          </div>
+      <div className="min-h-screen bg-[var(--color-cream)] flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-[var(--color-ink)] border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!profile) {
+    return (
+      <div className="min-h-screen bg-[var(--color-cream)] flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-[1.5rem] mb-3">🔒</p>
+          <p className="text-[var(--color-ink3)] mb-4">Please sign in to view your profile.</p>
+          <Link href="/login" className="px-6 py-2.5 bg-[var(--color-ink)] text-[var(--color-cream)] rounded-full text-[0.85rem] font-medium">Sign In</Link>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[var(--color-surface)]">
-      <Navbar />
-      <div className="max-w-[1128px] mx-auto px-4 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+    <div className="min-h-screen bg-[var(--color-cream)]">
+      {/* Nav */}
+      <nav className="sticky top-0 z-[100] flex items-center justify-between px-6 lg:px-12 h-[60px] bg-[rgba(245,242,236,0.88)] backdrop-blur-[16px] border-b border-[rgba(26,23,20,0.06)]">
+        <Link href="/" className="flex items-center gap-2.5">
+          <Image src="/logo.png" alt="ChitranshTech" width={30} height={30} className="w-[30px] h-[30px] object-contain" />
+          <span className="font-[var(--font-serif)] text-[1.05rem] font-semibold tracking-[-0.01em] text-[var(--color-ink)]">ChitranshTech</span>
+        </Link>
+        <ul className="hidden md:flex items-center gap-10 absolute left-1/2 -translate-x-1/2">
+          <li><Link href="/jobs" className="text-[0.85rem] text-[var(--color-ink3)] hover:text-[var(--color-ink)] transition-colors">Find Jobs</Link></li>
+          <li><Link href="/feed" className="text-[0.85rem] text-[var(--color-ink3)] hover:text-[var(--color-ink)] transition-colors">Feed</Link></li>
+          <li><Link href="/network" className="text-[0.85rem] text-[var(--color-ink3)] hover:text-[var(--color-ink)] transition-colors">Network</Link></li>
+          <li><Link href="/profile" className="text-[0.85rem] text-[var(--color-ink)] font-medium border-b-2 border-[var(--color-ink)] pb-0.5">Profile</Link></li>
+        </ul>
+        <div className="flex items-center gap-3">
+          <Link href="/dashboard" className="text-[0.85rem] text-[var(--color-ink3)] hover:text-[var(--color-ink)] transition-colors">Dashboard</Link>
+          <button onClick={() => { logout(); router.push("/"); }} className="text-[0.85rem] text-[var(--color-warm)] px-3 py-1.5 rounded-[10px] hover:bg-[rgba(232,128,58,0.08)] transition-colors">Sign Out</button>
+        </div>
+      </nav>
 
-          {/* Main content */}
-          <div className="lg:col-span-8 space-y-4">
+      <div className="max-w-[900px] mx-auto px-4 py-8">
+        {/* Profile header */}
+        <div className="bg-white border border-[rgba(26,23,20,0.06)] rounded-[20px] overflow-hidden mb-6">
+          <div className="h-28 bg-gradient-to-r from-[var(--color-ink)] via-[var(--color-teal2)] to-[var(--color-teal)]" />
+          <div className="px-7 pb-7">
+            <div className="-mt-12 flex items-end justify-between mb-5">
+              <div className="w-24 h-24 rounded-full bg-[var(--color-cream)] border-4 border-white flex items-center justify-center font-[var(--font-serif)] text-[2rem] font-semibold text-[var(--color-ink)] shadow-md">
+                {profile.full_name?.[0]?.toUpperCase()}
+              </div>
+              <Link href="/dashboard" className="px-5 py-2 bg-[var(--color-lime)] text-[var(--color-ink)] rounded-full text-[0.82rem] font-medium hover:bg-[var(--color-lime2)] transition-colors">
+                ✏️ Edit Profile
+              </Link>
+            </div>
 
-            {/* Profile Card */}
-            <div className="bg-white rounded-xl border border-[var(--color-border)] overflow-hidden">
-              {/* Banner */}
-              <div className="h-[120px] gradient-primary relative" />
+            <h1 className="font-[var(--font-serif)] text-[1.6rem] font-medium text-[var(--color-ink)] tracking-[-0.02em]">{profile.full_name}</h1>
+            <p className="text-[0.9rem] text-[var(--color-ink3)] mt-0.5">{profile.headline || profile.email}</p>
 
-              <div className="px-6 pb-6">
-                {/* Avatar */}
-                <div className="w-[120px] h-[120px] rounded-full bg-white border-4 border-white -mt-[60px] relative flex items-center justify-center text-3xl font-bold text-[var(--color-primary)] shadow-md">
-                  {user?.full_name[0].toUpperCase()}
-                </div>
+            <div className="flex flex-wrap items-center gap-4 mt-2 text-[0.78rem] text-[var(--color-ink4)]">
+              {profile.location && <span>📍 {profile.location}</span>}
+              {profile.current_company && <span>🏢 {profile.current_company}</span>}
+              {profile.current_position && <span>💼 {profile.current_position}</span>}
+              {profile.experience_years && <span>📊 {profile.experience_years} years exp.</span>}
+            </div>
 
-                <div className="mt-3 flex items-start justify-between">
-                  <div>
-                    <h1 className="text-2xl font-bold">{user?.full_name}</h1>
-                    {profile?.headline ? (
-                      <p className="text-[var(--color-text-secondary)] mt-0.5">{profile.headline}</p>
-                    ) : (
-                      <p className="text-[var(--color-text-muted)] mt-0.5 italic">Add a headline</p>
-                    )}
-                    {profile?.location && (
-                      <p className="text-sm text-[var(--color-text-muted)] flex items-center gap-1 mt-1">
-                        <MapPin size={14} /> {profile.location}
-                      </p>
-                    )}
-                    <div className="flex gap-4 mt-2 text-sm">
-                      <span className="text-[var(--color-primary)] font-medium">{profile?.follower_count || 0} followers</span>
-                      <span className="text-[var(--color-text-muted)]">{profile?.following_count || 0} following</span>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => setEditMode(!editMode)}
-                    className="p-2 text-[var(--color-text-secondary)] hover:bg-gray-100 rounded-full transition-colors"
-                  >
-                    <Pencil size={18} />
-                  </button>
-                </div>
+            {/* Stats */}
+            <div className="flex gap-6 mt-5 pt-5 border-t border-[rgba(26,23,20,0.06)]">
+              <button onClick={() => setShowConnections(showConnections === "followers" ? null : "followers")} className="text-left hover:opacity-80 transition-opacity">
+                <span className="font-[var(--font-serif)] text-[1.1rem] font-semibold text-[var(--color-ink)]">{profile.follower_count}</span>
+                <span className="text-[0.78rem] text-[var(--color-ink4)] ml-1.5">followers</span>
+              </button>
+              <button onClick={() => setShowConnections(showConnections === "following" ? null : "following")} className="text-left hover:opacity-80 transition-opacity">
+                <span className="font-[var(--font-serif)] text-[1.1rem] font-semibold text-[var(--color-ink)]">{profile.following_count}</span>
+                <span className="text-[0.78rem] text-[var(--color-ink4)] ml-1.5">following</span>
+              </button>
+              <div>
+                <span className="font-[var(--font-serif)] text-[1.1rem] font-semibold text-[var(--color-ink)]">{profile.profile_view_count}</span>
+                <span className="text-[0.78rem] text-[var(--color-ink4)] ml-1.5">profile views</span>
+              </div>
+            </div>
+          </div>
+        </div>
 
-                {/* Edit form */}
-                {editMode && (
-                  <div className="mt-4 p-4 bg-[var(--color-surface)] rounded-lg space-y-3">
-                    <input
-                      className="w-full border border-[var(--color-border)] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
-                      placeholder="Headline (e.g. Full Stack Developer at Google)"
-                      value={editData.headline}
-                      onChange={(e) => setEditData({ ...editData, headline: e.target.value })}
-                    />
-                    <textarea
-                      className="w-full border border-[var(--color-border)] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] resize-none"
-                      placeholder="About you..."
-                      rows={3}
-                      value={editData.bio}
-                      onChange={(e) => setEditData({ ...editData, bio: e.target.value })}
-                    />
-                    <div className="grid grid-cols-2 gap-3">
-                      <input
-                        className="border border-[var(--color-border)] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
-                        placeholder="Current Company"
-                        value={editData.current_company}
-                        onChange={(e) => setEditData({ ...editData, current_company: e.target.value })}
-                      />
-                      <input
-                        className="border border-[var(--color-border)] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
-                        placeholder="Current Position"
-                        value={editData.current_position}
-                        onChange={(e) => setEditData({ ...editData, current_position: e.target.value })}
-                      />
+        {/* Connections panel */}
+        {showConnections && (
+          <div className="bg-white border border-[rgba(26,23,20,0.06)] rounded-[16px] p-6 mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex gap-2">
+                <button onClick={() => setShowConnections("followers")} className={`px-4 py-1.5 rounded-full text-[0.8rem] font-medium transition-all ${showConnections === "followers" ? "bg-[var(--color-ink)] text-[var(--color-cream)]" : "bg-[var(--color-cream2)] text-[var(--color-ink3)]"}`}>
+                  Followers ({followers.length})
+                </button>
+                <button onClick={() => setShowConnections("following")} className={`px-4 py-1.5 rounded-full text-[0.8rem] font-medium transition-all ${showConnections === "following" ? "bg-[var(--color-ink)] text-[var(--color-cream)]" : "bg-[var(--color-cream2)] text-[var(--color-ink3)]"}`}>
+                  Following ({following.length})
+                </button>
+              </div>
+              <button onClick={() => setShowConnections(null)} className="text-[0.78rem] text-[var(--color-ink4)] hover:text-[var(--color-ink)]">✕</button>
+            </div>
+            <div className="space-y-2 max-h-[300px] overflow-y-auto">
+              {(showConnections === "followers" ? followers : following).length > 0 ? (
+                (showConnections === "followers" ? followers : following).map((person) => (
+                  <Link key={person.user_id} href={`/profile/${person.user_id}`} className="flex items-center gap-3 p-3 rounded-[10px] hover:bg-[var(--color-cream)] transition-colors">
+                    <div className="w-10 h-10 rounded-full bg-[var(--color-ink)] flex items-center justify-center font-[var(--font-serif)] text-[0.8rem] font-semibold text-[var(--color-cream)]">
+                      {person.full_name?.[0]?.toUpperCase()}
                     </div>
                     <div>
-                      <input
-                        className="border border-[var(--color-border)] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
-                        placeholder="Location"
-                        value={editData.location}
-                        onChange={(e) => setEditData({ ...editData, location: e.target.value })}
-                      />
+                      <p className="text-[0.85rem] font-medium text-[var(--color-ink)]">{person.full_name}</p>
+                      <p className="text-[0.72rem] text-[var(--color-ink4)]">{person.headline || ""}</p>
                     </div>
-                    <div className="flex gap-2">
-                      <button onClick={handleSaveProfile} className="bg-[var(--color-primary)] text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-[var(--color-primary-dark)]">
-                        Save
-                      </button>
-                      <button onClick={() => setEditMode(false)} className="px-4 py-2 rounded-full text-sm text-[var(--color-text-secondary)] hover:bg-gray-100">
-                        Cancel
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                {/* Bio */}
-                {profile?.bio && !editMode && (
-                  <p className="text-sm text-[var(--color-text-secondary)] mt-4 leading-relaxed">{profile.bio}</p>
-                )}
-              </div>
-            </div>
-
-            {/* Experience */}
-            <div className="bg-white rounded-xl border border-[var(--color-border)] p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-bold flex items-center gap-2"><Briefcase size={20} /> Experience</h2>
-                <button className="p-1.5 hover:bg-gray-100 rounded-full"><Plus size={18} /></button>
-              </div>
-              {experience.length === 0 ? (
-                <p className="text-sm text-[var(--color-text-muted)]">Add your work experience to showcase your career journey.</p>
+                  </Link>
+                ))
               ) : (
-                <div className="space-y-4">
-                  {experience.map((exp) => (
-                    <div key={exp.id} className="flex gap-3 pb-4 border-b border-[var(--color-border)] last:border-0 last:pb-0">
-                      <div className="w-10 h-10 rounded bg-gray-100 flex items-center justify-center text-sm font-bold text-[var(--color-text-secondary)]">
-                        {exp.company_name[0]}
-                      </div>
-                      <div>
-                        <p className="font-semibold text-sm">{exp.designation || "Role"}</p>
-                        <p className="text-sm text-[var(--color-text-secondary)]">{exp.company_name}</p>
-                        <p className="text-xs text-[var(--color-text-muted)]">
-                          {exp.start_date} — {exp.end_date || "Present"}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Education */}
-            <div className="bg-white rounded-xl border border-[var(--color-border)] p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-bold flex items-center gap-2"><GraduationCap size={20} /> Education</h2>
-                <button className="p-1.5 hover:bg-gray-100 rounded-full"><Plus size={18} /></button>
-              </div>
-              {education.length === 0 ? (
-                <p className="text-sm text-[var(--color-text-muted)]">Add your educational background.</p>
-              ) : (
-                <div className="space-y-4">
-                  {education.map((edu) => (
-                    <div key={edu.id} className="flex gap-3 pb-4 border-b border-[var(--color-border)] last:border-0 last:pb-0">
-                      <div className="w-10 h-10 rounded bg-blue-50 flex items-center justify-center text-sm font-bold text-[var(--color-primary)]">
-                        {edu.institution_name[0]}
-                      </div>
-                      <div>
-                        <p className="font-semibold text-sm">{edu.institution_name}</p>
-                        <p className="text-sm text-[var(--color-text-secondary)]">{edu.degree}{edu.specialization ? ` — ${edu.specialization}` : ""}</p>
-                        <p className="text-xs text-[var(--color-text-muted)]">{edu.start_year} — {edu.end_year || "Present"}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Skills */}
-            <div className="bg-white rounded-xl border border-[var(--color-border)] p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-bold flex items-center gap-2"><Award size={20} /> Skills</h2>
-                <button onClick={handleAddSkill} className="p-1.5 hover:bg-gray-100 rounded-full"><Plus size={18} /></button>
-              </div>
-              {skills.length === 0 ? (
-                <p className="text-sm text-[var(--color-text-muted)]">Add skills to get endorsed by your connections.</p>
-              ) : (
-                <div className="space-y-3">
-                  {skills.map((skill) => (
-                    <div key={skill.id} className="flex items-center justify-between py-2 border-b border-[var(--color-border)] last:border-0">
-                      <div>
-                        <p className="font-medium text-sm">{skill.skill_name}</p>
-                        <p className="text-xs text-[var(--color-text-muted)]">
-                          {skill.endorsement_count} endorsement{skill.endorsement_count !== 1 ? "s" : ""}
-                          {skill.skill_level && ` · ${skill.skill_level}`}
-                        </p>
-                      </div>
-                      <button onClick={() => handleDeleteSkill(skill.id)} className="text-[var(--color-text-muted)] hover:text-red-500 p-1">
-                        <Trash2 size={14} />
-                      </button>
-                    </div>
-                  ))}
-                </div>
+                <p className="text-[0.82rem] text-[var(--color-ink4)] text-center py-4">No {showConnections} yet.</p>
               )}
             </div>
           </div>
+        )}
 
-          {/* Sidebar */}
-          <aside className="lg:col-span-4 space-y-4">
-            {/* Stats card */}
-            <div className="bg-white rounded-xl border border-[var(--color-border)] p-5">
-              <h3 className="text-sm font-semibold mb-3">Profile analytics</h3>
-              <div className="space-y-3">
-                <div className="flex items-center gap-3">
-                  <Eye size={18} className="text-[var(--color-text-muted)]" />
-                  <div>
-                    <p className="text-sm font-medium">{profile?.profile_view_count || 0} profile views</p>
-                    <p className="text-xs text-[var(--color-text-muted)]">See who viewed your profile</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Users size={18} className="text-[var(--color-text-muted)]" />
-                  <div>
-                    <p className="text-sm font-medium">{profile?.follower_count || 0} connections</p>
-                    <p className="text-xs text-[var(--color-text-muted)]">Grow your network</p>
-                  </div>
-                </div>
-              </div>
+        {/* Bio */}
+        {profile.bio && (
+          <div className="bg-white border border-[rgba(26,23,20,0.06)] rounded-[16px] p-6 mb-4">
+            <h3 className="font-[var(--font-serif)] text-[1rem] font-medium text-[var(--color-ink)] mb-3">About</h3>
+            <p className="text-[0.88rem] text-[var(--color-ink2)] leading-[1.8] whitespace-pre-wrap">{profile.bio}</p>
+          </div>
+        )}
+
+        {/* Links */}
+        {(profile.portfolio_url || profile.linkedin_url || profile.github_url) && (
+          <div className="bg-white border border-[rgba(26,23,20,0.06)] rounded-[16px] p-6 mb-4">
+            <h3 className="font-[var(--font-serif)] text-[1rem] font-medium text-[var(--color-ink)] mb-3">Links</h3>
+            <div className="flex flex-wrap gap-4">
+              {profile.portfolio_url && <a href={profile.portfolio_url} target="_blank" rel="noopener" className="text-[0.82rem] text-[var(--color-teal)] hover:underline">🌐 Portfolio</a>}
+              {profile.linkedin_url && <a href={profile.linkedin_url} target="_blank" rel="noopener" className="text-[0.82rem] text-[var(--color-teal)] hover:underline">💼 LinkedIn</a>}
+              {profile.github_url && <a href={profile.github_url} target="_blank" rel="noopener" className="text-[0.82rem] text-[var(--color-teal)] hover:underline">🐙 GitHub</a>}
             </div>
+          </div>
+        )}
 
-            {/* Links */}
-            {(profile?.linkedin_url || profile?.github_url || profile?.portfolio_url) && (
-              <div className="bg-white rounded-xl border border-[var(--color-border)] p-5">
-                <h3 className="text-sm font-semibold mb-3">Links</h3>
-                <div className="space-y-2">
-                  {profile.linkedin_url && (
-                    <a href={profile.linkedin_url} target="_blank" className="flex items-center gap-2 text-sm text-[var(--color-primary)] hover:underline">
-                      <ExternalLink size={14} /> LinkedIn
-                    </a>
-                  )}
-                  {profile.github_url && (
-                    <a href={profile.github_url} target="_blank" className="flex items-center gap-2 text-sm text-[var(--color-primary)] hover:underline">
-                      <ExternalLink size={14} /> GitHub
-                    </a>
-                  )}
-                  {profile.portfolio_url && (
-                    <a href={profile.portfolio_url} target="_blank" className="flex items-center gap-2 text-sm text-[var(--color-primary)] hover:underline">
-                      <ExternalLink size={14} /> Portfolio
-                    </a>
-                  )}
+        {/* Skills */}
+        {skills.length > 0 && (
+          <div className="bg-white border border-[rgba(26,23,20,0.06)] rounded-[16px] p-6 mb-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-[var(--font-serif)] text-[1rem] font-medium text-[var(--color-ink)]">Skills ({skills.length})</h3>
+              <Link href="/dashboard" className="text-[0.75rem] text-[var(--color-teal)] hover:underline">+ Add more</Link>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {skills.map((s) => (
+                <div key={s.id} className="flex items-center gap-2 px-3 py-2 bg-[var(--color-cream)] rounded-full border border-[rgba(26,23,20,0.04)]">
+                  <span className="text-[0.82rem] text-[var(--color-ink)]">{s.skill_name}</span>
+                  {s.skill_level && <span className="text-[0.65rem] text-[var(--color-ink4)]">· {s.skill_level}</span>}
+                  {s.endorsement_count > 0 && <span className="text-[0.65rem] text-[var(--color-teal)] font-medium">({s.endorsement_count})</span>}
                 </div>
-              </div>
-            )}
-          </aside>
-        </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Experience */}
+        {experience.length > 0 && (
+          <div className="bg-white border border-[rgba(26,23,20,0.06)] rounded-[16px] p-6 mb-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-[var(--font-serif)] text-[1rem] font-medium text-[var(--color-ink)]">Experience</h3>
+              <Link href="/dashboard" className="text-[0.75rem] text-[var(--color-teal)] hover:underline">+ Add more</Link>
+            </div>
+            <div className="space-y-4">
+              {experience.map((e) => (
+                <div key={e.id} className="flex gap-3 pb-4 border-b border-[rgba(26,23,20,0.04)] last:border-0 last:pb-0">
+                  <div className="w-10 h-10 rounded-[10px] bg-[rgba(232,128,58,0.08)] flex items-center justify-center text-[0.85rem] shrink-0">💼</div>
+                  <div>
+                    <p className="text-[0.9rem] font-medium text-[var(--color-ink)]">{e.designation || "Role"}</p>
+                    <p className="text-[0.8rem] text-[var(--color-ink3)]">{e.company_name}</p>
+                    {(e.start_date || e.end_date) && <p className="text-[0.72rem] text-[var(--color-ink4)] mt-0.5">{e.start_date} – {e.end_date || "Present"}</p>}
+                    {e.description && <p className="text-[0.8rem] text-[var(--color-ink3)] mt-2 leading-[1.6]">{e.description}</p>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Education */}
+        {education.length > 0 && (
+          <div className="bg-white border border-[rgba(26,23,20,0.06)] rounded-[16px] p-6 mb-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-[var(--font-serif)] text-[1rem] font-medium text-[var(--color-ink)]">Education</h3>
+              <Link href="/dashboard" className="text-[0.75rem] text-[var(--color-teal)] hover:underline">+ Add more</Link>
+            </div>
+            <div className="space-y-4">
+              {education.map((e) => (
+                <div key={e.id} className="flex gap-3 pb-4 border-b border-[rgba(26,23,20,0.04)] last:border-0 last:pb-0">
+                  <div className="w-10 h-10 rounded-[10px] bg-[rgba(44,110,106,0.08)] flex items-center justify-center text-[0.85rem] shrink-0">🎓</div>
+                  <div>
+                    <p className="text-[0.9rem] font-medium text-[var(--color-ink)]">{e.institution_name}</p>
+                    <p className="text-[0.8rem] text-[var(--color-ink3)]">{[e.degree, e.specialization].filter(Boolean).join(" · ")}</p>
+                    {(e.start_year || e.end_year) && <p className="text-[0.72rem] text-[var(--color-ink4)] mt-0.5">{e.start_year} – {e.end_year || "Present"}</p>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Empty states */}
+        {skills.length === 0 && education.length === 0 && experience.length === 0 && !profile.bio && (
+          <div className="bg-white border border-[rgba(26,23,20,0.06)] rounded-[16px] p-10 text-center">
+            <p className="text-[2rem] mb-3">✨</p>
+            <h3 className="font-[var(--font-serif)] text-[1.1rem] font-medium text-[var(--color-ink)] mb-2">Complete your profile</h3>
+            <p className="text-[0.85rem] text-[var(--color-ink4)] mb-5 max-w-[300px] mx-auto">Add your bio, skills, education, and experience to stand out to employers.</p>
+            <Link href="/dashboard" className="inline-block px-6 py-2.5 bg-[var(--color-ink)] text-[var(--color-cream)] rounded-full text-[0.85rem] font-medium hover:bg-[var(--color-ink2)] transition-colors">
+              Complete Profile →
+            </Link>
+          </div>
+        )}
       </div>
     </div>
   );
